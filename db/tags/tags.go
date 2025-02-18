@@ -50,7 +50,7 @@ func AddTags(db *sql.DB, ctx context.Context, postId int, tags []Tag) error {
 	}
 
 	for _, tagId := range tagIds {
-		_, err := db.Exec("INSERT INTO post_tags (post_id, tag_id) VALUES ($1, $2)", postId, tagId)
+		_, err := db.ExecContext(ctx, "INSERT INTO post_tags (post_id, tag_id) VALUES ($1, $2)", postId, tagId)
 		if err != nil {
 			return err
 		}

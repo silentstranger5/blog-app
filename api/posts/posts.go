@@ -82,8 +82,12 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 		for _, tag := range post.Tags {
 			tagMap[tag] = true
 		}
-		for tag := range tagMap {
-			tagList = append(tagList, tag)
+		for _, tag := range post.Tags {
+			_, ok := tagMap[tag]
+			if ok {
+				tagList = append(tagList, tag)
+				delete(tagMap, tag)
+			}
 		}
 		err = tags.AddTags(config.DB, config.Ctx, postId, tagList)
 		if err != nil {

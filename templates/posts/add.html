@@ -1,0 +1,23 @@
+{{define "title"}}My Blog | Add Post{{end}}
+
+{{define "content"}}
+    <div class="mt-3 mb-3">
+        <h2>Add Post</h2>
+    </div>
+    <form hx-post="/web/posts/add">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title:</label>
+            <input type="text" id="title" name="title" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="text" class="form-label">Text:</label>
+            <textarea type="text" id="text" name="text" rows="10" class="form-control" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="tags" class="form-label">Tags:</label>
+            <input type="text" id="tags" name="tags" class="form-control" aria-describedby="tag-tip">
+            <div id="tag-tip" class="form-text mb-3">Comma-separated list of values (i.e. first tag, second tag, ...)</div>
+        </div>
+        <input type="submit" value="Submit" class="btn btn-primary mb-3">
+    </form>
+{{end}}

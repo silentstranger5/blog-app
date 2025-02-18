@@ -1,0 +1,26 @@
+{{define "title"}}My Blog | Posts{{end}}
+
+{{define "content"}}
+    <div class="mt-3">
+        <h2>Blog Posts</h2>
+    </div>
+    {{if gt (len .Posts) 0}}
+    <div class="post-list">
+        {{range .Posts}}
+        <div class="border rounded mt-3 mb-3 p-3">
+            <h3><a href="/web/posts/get/{{.Id}}" class="text-reset">{{.Title}}</a></h3>
+            <p>
+                Author: <em>{{.Author}}</em><br>
+                {{dateformat .Created}}
+            </p>
+            <div>{{html .Text}}</div>
+            <div>
+                <span class="me-3">Likes: {{.Likes}}</span><span>Comments: {{.Comments}}</span>
+            </div>
+        </div>
+        {{end}}
+    </div>
+    {{else}}
+        <p class="mt-3 mb-3">No Posts Found</p>
+    {{end}}
+{{end}}

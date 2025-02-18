@@ -1,0 +1,14 @@
+<p>{{len .Comments}} Comments</p>
+{{range .Comments}}
+<div class="border rounded mb-3 p-3 comment">
+    <div class="mb-3">
+        <span class="me-3">{{.Author}}</span>
+        <span>{{dateformat .Created}}</span>    
+    </div>
+    <p>{{.Text}}</p>
+    {{if eq $.UserId .AuthorId}}
+    <a href="#" hx-get="/web/comments/update/{{.Id}}" hx-target="closest .comment" class="me-3">Edit</a>
+    <a href="#" hx-delete="/web/comments/delete/{{.Id}}" hx-target="#comments">Delete</a>
+    {{end}}
+</div>
+{{end}}

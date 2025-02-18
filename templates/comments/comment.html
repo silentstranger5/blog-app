@@ -1,0 +1,9 @@
+<div class="mb-3">
+    <span class="me-3">{{.Comment.Author}}</span>
+    <span>{{dateformat .Comment.Created}}</span>    
+</div>
+<p>{{.Comment.Text}}</p>
+{{if eq .UserId .Comment.AuthorId}}
+<a href="#" hx-get="/web/comments/update/{{.Comment.Id}}" hx-target="closest .comment" class="me-3">Edit</a>
+<a href="#" hx-delete="/web/comments/delete/{{.Comment.Id}}" hx-target="#comments">Delete</a>
+{{end}}

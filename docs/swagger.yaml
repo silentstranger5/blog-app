@@ -1,0 +1,520 @@
+definitions:
+  auth.User:
+    properties:
+      id:
+        type: integer
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  comments.Comment:
+    properties:
+      author:
+        type: string
+      authorId:
+        type: integer
+      created:
+        type: string
+      id:
+        type: integer
+      postId:
+        type: integer
+      text:
+        type: string
+    type: object
+  images.Image:
+    properties:
+      authorId:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  posts.Post:
+    properties:
+      author:
+        type: string
+      authorId:
+        type: integer
+      comments:
+        type: integer
+      created:
+        type: string
+      id:
+        type: integer
+      likes:
+        type: integer
+      tags:
+        items:
+          $ref: '#/definitions/tags.Tag'
+        type: array
+      text:
+        type: string
+      title:
+        type: string
+    type: object
+  posts.Posts:
+    properties:
+      nposts:
+        type: integer
+      posts:
+        items:
+          $ref: '#/definitions/posts.Post'
+        type: array
+    type: object
+  tags.Tag:
+    properties:
+      name:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/admin/reset:
+    get:
+      parameters:
+      - description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      summary: Reset the database
+      tags:
+      - admin
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/auth.User'
+      responses:
+        "200":
+          description: OK
+      summary: Register a new user
+      tags:
+      - auth
+  /api/auth/token:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/auth.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Get auth token for the user
+      tags:
+      - auth
+  /api/comments/add/{id}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Comment
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/comments.Comment'
+      responses:
+        "200":
+          description: OK
+      summary: Add a comment to the post
+      tags:
+      - comments
+  /api/comments/delete/{id}:
+    delete:
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      summary: Delete the comment
+      tags:
+      - comments
+  /api/comments/get/{id}:
+    get:
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/comments.Comment'
+      summary: Get the comment by ID
+      tags:
+      - comments
+  /api/comments/post/{id}:
+    get:
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/comments.Comment'
+            type: array
+      summary: Get comments for the post
+      tags:
+      - comments
+  /api/comments/update/{id}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Comment
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/comments.Comment'
+      - description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      summary: Update the comment
+      tags:
+      - comments
+  /api/images/delete/{id}:
+    delete:
+      parameters:
+      - description: Image ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Auth Header
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      summary: Delete Image
+      tags:
+      - images
+  /api/images/get:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/images.Image'
+            type: array
+      summary: Get images
+      tags:
+      - images
+  /api/images/get/{id}:
+    get:
+      parameters:
+      - description: Image ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/images.Image'
+      summary: Get Image by ID
+      tags:
+      - images
+  /api/images/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Image File
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: Auth Header
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      summary: Upload an image
+      tags:
+      - images
+  /api/posts/add:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Post
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/posts.Post'
+      - description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      summary: Add a new post
+      tags:
+      - posts
+  /api/posts/delete/{id}:
+    delete:
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      summary: Delete a post
+      tags:
+      - posts
+  /api/posts/dislike/{id}:
+    post:
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      summary: Dislike a post
+      tags:
+      - posts
+  /api/posts/get:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/posts.Posts'
+      summary: Get post list
+      tags:
+      - posts
+  /api/posts/get/{id}:
+    get:
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/posts.Post'
+            type: array
+      summary: Get a post by ID
+      tags:
+      - posts
+  /api/posts/like/id:
+    post:
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      summary: Like a post
+      tags:
+      - posts
+  /api/posts/likes/{id}:
+    get:
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: Get likes for the post
+      tags:
+      - posts
+  /api/posts/search/{query}:
+    get:
+      parameters:
+      - description: Query
+        in: path
+        name: query
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/posts.Posts'
+      summary: Search posts by title
+      tags:
+      - posts
+  /api/posts/update/{id}:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Post
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/posts.Post'
+      - description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      summary: Update a post
+      tags:
+      - posts
+  /api/tags/get/{id}:
+    get:
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/tags.Tag'
+            type: array
+      summary: Get all tags for the post
+      tags:
+      - tags
+  /api/tags/post/{name}:
+    get:
+      parameters:
+      - description: Tag Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/posts.Posts'
+      summary: Get posts associated with the tag
+      tags:
+      - tags
+swagger: "2.0"

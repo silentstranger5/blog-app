@@ -1,0 +1,23 @@
+<div class="row row-cols-3 g-4">
+    {{if gt (len .Images) 0}}
+    {{range .Images}}
+        <div class="col">
+            <div class="card">
+                <a href="/web/static/images/{{.Name}}">
+                    <img src="/web/static/images/{{.Name}}" class="card-img-top">
+                </a>
+                <div class="card-body">
+                    <span class="card-text me-3">Image Filename: {{.Name}}</span>
+                    {{if eq $.UserId .AuthorId}}
+                        <a href="#" class="btn btn-danger" 
+                            hx-delete="/web/images/delete/{{.Id}}"
+                            hx-target="#gallery">Delete</a>
+                    {{end}}
+                </div>
+            </div>    
+        </div>
+    {{end}}
+    {{else}}
+    <p>No Images Found</p>
+    {{end}}
+</div>

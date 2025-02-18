@@ -1,0 +1,30 @@
+{{define "title"}}My Blog | Register{{end}}
+
+{{define "content"}}
+    <div class="mt-3 mb-3">
+        <h2>Register</h2>
+    </div>
+    <div class="border border-danger rounded mb-3 p-3 d-none" id="message"></div>
+    <form hx-post="/web/auth/register">
+        <div class="mb-3">
+            <label for="name" class="form-label">Username:</label>
+            <input type="text" id="username" name="username" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password:</label>
+            <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="confirm-password" class="form-label">Confirm Password:</label>
+            <input type="password" id="confirm-password" name="confirm-password" class="form-control" required>
+        </div>
+        <input type="submit" value="Register" class="btn btn-primary mb-3">
+    </form>
+    <script>
+        htmx.on("htmx:responseError", function(event) {
+            const message = document.getElementById('message');
+            message.classList.remove('d-none');
+            message.innerHTML = event.detail.xhr.response;
+        })
+    </script>
+{{end}}

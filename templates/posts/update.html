@@ -1,0 +1,23 @@
+{{define "title"}}My Blog | Update Post{{end}}
+
+{{define "content"}}
+    <div class="mt-3 mb-3">
+        <h2>Update Post</h2>
+    </div>
+    <form hx-post="/web/posts/update/{{.Post.Id}}">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title:</label>
+            <input type="text" id="title" name="title" value="{{.Post.Title}}" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="text">Text:</label>
+            <textarea type="text" id="text" name="text" rows="10" class="form-control" required>{{.Post.Text}}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="tags">Tags:</label>
+            <input type="text" id="tags" name="tags" value="{{join .Post.Tags}}" class="form-control" aira-describedby="tag-tip">
+            <div id="tag-tip" class="form-text mb-3">Comma-separated list of values (i.e. first tag, second tag, ...)</div>
+        </div>
+        <input type="submit" value="Submit" class="btn btn-primary mb-3">
+    </form>
+{{end}}

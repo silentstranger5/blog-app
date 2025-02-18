@@ -1,0 +1,10 @@
+<div class="mb-3">
+    <form hx-post="/web/comments/update/{{.Comment.Id}}"
+        hx-target="closest .comment">
+        <div class="mb-3">
+            <label for="comment" class="form-label">Comment</label>
+            <textarea class="form-control" id="comment" name="comment" rows="3" required>{{.Comment.Text}}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>    
+</div>

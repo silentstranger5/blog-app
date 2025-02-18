@@ -1,0 +1,44 @@
+{{define "title"}}My Blog | Gallery{{end}}
+
+{{define "content"}}
+    <div class="mt-3 mb-3">
+        <h2>Upload Image</h2>
+    </div>
+    <form hx-post="/web/images/upload" enctype="multipart/form-data"
+        hx-target="#gallery">
+        <div class="mb-3">
+            <label for="image" class="form-label">Image:</label>
+            <input type="file" id="image" name="image" class="form-control" required>
+        </div>
+        <input type="submit" value="Submit" class="btn btn-primary mb-3">
+    </form>
+    <hr>
+    <div class="mt-3 mb-3">
+        <h2>Gallery</h2>
+    </div>
+    <div class="container" id="gallery">
+        {{if gt (len .Images) 0}}
+        <div class="row row-cols-3 g-4">
+            {{range .Images}}
+                <div class="col">
+                    <div class="card">
+                        <a href="/web/static/images/{{.Name}}">
+                            <img src="/web/static/images/{{.Name}}" class="card-img-top">
+                        </a>
+                        <div class="card-body">
+                            <span class="card-text me-3">Image Filename: {{.Name}}</span>
+                            {{if eq $.UserId .AuthorId}}
+                                <a href="#" class="btn btn-danger" 
+                                    hx-delete="/web/images/delete/{{.Id}}"
+                                    hx-target="#gallery">Delete</a>
+                            {{end}}
+                        </div>
+                    </div>    
+                </div>
+            {{end}}
+        </div>
+        {{else}}
+        <p class="mt-3 mb-3">No Images Found</p>
+        {{end}}
+    </div>
+{{end}}

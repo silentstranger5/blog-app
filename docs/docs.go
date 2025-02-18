@@ -15,29 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/admin/reset": {
-            "get": {
-                "tags": [
-                    "admin"
-                ],
-                "summary": "Reset the database",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
-        "/api/auth/register": {
+        "/api/auth/Register": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -60,12 +38,24 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Invalid Request"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "409": {
+                        "description": "User Already Exists"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
         },
-        "/api/auth/token": {
-            "post": {
+        "/api/auth/Token": {
+            "get": {
                 "consumes": [
                     "application/json"
                 ],
@@ -75,7 +65,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Get auth token for the user",
+                "summary": "Get auth Token for the user",
                 "parameters": [
                     {
                         "description": "User",
@@ -93,6 +83,21 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Password"
+                    },
+                    "404": {
+                        "description": "User Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Erorr"
                     }
                 }
             }
@@ -134,6 +139,18 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Header"
+                    },
+                    "404": {
+                        "description": "Post Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
                     }
                 }
             }
@@ -163,6 +180,24 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Token"
+                    },
+                    "403": {
+                        "description": "No Access To Comment"
+                    },
+                    "404": {
+                        "description": "Comment Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -191,6 +226,18 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/comments.Comment"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Comment Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -222,6 +269,18 @@ const docTemplate = `{
                                 "$ref": "#/definitions/comments.Comment"
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Comments Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -263,6 +322,21 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Token"
+                    },
+                    "403": {
+                        "description": "No Access To Comment"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -292,6 +366,21 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Token"
+                    },
+                    "403": {
+                        "description": "No Access To Image"
+                    },
+                    "404": {
+                        "description": "Image Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -314,6 +403,15 @@ const docTemplate = `{
                                 "$ref": "#/definitions/images.Image"
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Images Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -342,6 +440,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/images.Image"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -374,6 +478,18 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Token"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -408,6 +524,18 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Header"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -437,6 +565,24 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Token"
+                    },
+                    "403": {
+                        "description": "No Access To Post"
+                    },
+                    "404": {
+                        "description": "Post Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -466,6 +612,21 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Header"
+                    },
+                    "404": {
+                        "description": "Post Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -483,8 +644,23 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/posts.Posts"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/posts.Post"
+                            }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Posts Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -516,6 +692,18 @@ const docTemplate = `{
                                 "$ref": "#/definitions/posts.Post"
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -545,6 +733,21 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Header"
+                    },
+                    "404": {
+                        "description": "Post Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -573,6 +776,15 @@ const docTemplate = `{
                         "schema": {
                             "type": "integer"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Post Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -596,8 +808,23 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/posts.Posts"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/posts.Post"
+                            }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Post Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -639,6 +866,24 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Token"
+                    },
+                    "403": {
+                        "description": "No Access To Post"
+                    },
+                    "404": {
+                        "description": "Post Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -670,6 +915,18 @@ const docTemplate = `{
                                 "$ref": "#/definitions/tags.Tag"
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Post Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -698,6 +955,15 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/posts.Posts"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Tag Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Error"
                     }
                 }
             }
@@ -746,6 +1012,9 @@ const docTemplate = `{
             "properties": {
                 "authorId": {
                     "type": "integer"
+                },
+                "created": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"

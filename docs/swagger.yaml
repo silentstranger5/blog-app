@@ -27,6 +27,8 @@ definitions:
     properties:
       authorId:
         type: integer
+      created:
+        type: string
       id:
         type: integer
       name:
@@ -72,21 +74,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/admin/reset:
-    get:
-      parameters:
-      - description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-      summary: Reset the database
-      tags:
-      - admin
-  /api/auth/register:
+  /api/auth/Register:
     post:
       consumes:
       - application/json
@@ -100,11 +88,19 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Invalid Request
+        "405":
+          description: Method Not Allowed
+        "409":
+          description: User Already Exists
+        "500":
+          description: Internal Error
       summary: Register a new user
       tags:
       - auth
-  /api/auth/token:
-    post:
+  /api/auth/Token:
+    get:
       consumes:
       - application/json
       parameters:
@@ -121,7 +117,17 @@ paths:
           description: OK
           schema:
             type: string
-      summary: Get auth token for the user
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Password
+        "404":
+          description: User Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Erorr
+      summary: Get auth Token for the user
       tags:
       - auth
   /api/comments/add/{id}:
@@ -148,6 +154,14 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Header
+        "404":
+          description: Post Not Found
+        "405":
+          description: Method Not Allowed
       summary: Add a comment to the post
       tags:
       - comments
@@ -167,6 +181,18 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Token
+        "403":
+          description: No Access To Comment
+        "404":
+          description: Comment Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Delete the comment
       tags:
       - comments
@@ -185,6 +211,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/comments.Comment'
+        "400":
+          description: Bad Request
+        "404":
+          description: Comment Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Get the comment by ID
       tags:
       - comments
@@ -205,6 +239,14 @@ paths:
             items:
               $ref: '#/definitions/comments.Comment'
             type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Comments Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Get comments for the post
       tags:
       - comments
@@ -232,6 +274,16 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Token
+        "403":
+          description: No Access To Comment
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Update the comment
       tags:
       - comments
@@ -251,6 +303,16 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Token
+        "403":
+          description: No Access To Image
+        "404":
+          description: Image Not Found
+        "500":
+          description: Internal Error
       summary: Delete Image
       tags:
       - images
@@ -265,6 +327,12 @@ paths:
             items:
               $ref: '#/definitions/images.Image'
             type: array
+        "404":
+          description: Images Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Get images
       tags:
       - images
@@ -283,6 +351,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/images.Image'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Error
       summary: Get Image by ID
       tags:
       - images
@@ -304,6 +376,14 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Token
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Upload an image
       tags:
       - images
@@ -326,6 +406,14 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Header
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Add a new post
       tags:
       - posts
@@ -345,6 +433,18 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Token
+        "403":
+          description: No Access To Post
+        "404":
+          description: Post Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Delete a post
       tags:
       - posts
@@ -364,6 +464,16 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Header
+        "404":
+          description: Post Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Dislike a post
       tags:
       - posts
@@ -375,7 +485,17 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/posts.Posts'
+            items:
+              $ref: '#/definitions/posts.Post'
+            type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Posts Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Get post list
       tags:
       - posts
@@ -396,6 +516,14 @@ paths:
             items:
               $ref: '#/definitions/posts.Post'
             type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Get a post by ID
       tags:
       - posts
@@ -415,6 +543,16 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Header
+        "404":
+          description: Post Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Like a post
       tags:
       - posts
@@ -433,6 +571,12 @@ paths:
           description: OK
           schema:
             type: integer
+        "400":
+          description: Bad Request
+        "404":
+          description: Post Not Found
+        "500":
+          description: Internal Error
       summary: Get likes for the post
       tags:
       - posts
@@ -448,7 +592,17 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/posts.Posts'
+            items:
+              $ref: '#/definitions/posts.Post'
+            type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Post Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Search posts by title
       tags:
       - posts
@@ -476,6 +630,18 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Token
+        "403":
+          description: No Access To Post
+        "404":
+          description: Post Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Update a post
       tags:
       - posts
@@ -496,6 +662,14 @@ paths:
             items:
               $ref: '#/definitions/tags.Tag'
             type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Post Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
       summary: Get all tags for the post
       tags:
       - tags
@@ -514,6 +688,12 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/posts.Posts'
+        "400":
+          description: Bad Request
+        "404":
+          description: Tag Not Found
+        "500":
+          description: Internal Error
       summary: Get posts associated with the tag
       tags:
       - tags

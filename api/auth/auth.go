@@ -19,6 +19,10 @@ import (
 // @Accept json
 // @Param user body User true "User"
 // @Success 200
+// @Failure 400 "Invalid Request"
+// @Failure 405 "Method Not Allowed"
+// @Failure 409 "User Already Exists"
+// @Failure 500 "Internal Error"
 // @Router /api/auth/Register [post]
 func Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -77,6 +81,11 @@ func Register(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param user body User true "User"
 // @Success 200 {object} string
+// @Failure 400 "Bad Request"
+// @Failure 401 "Invalid Password"
+// @Failure 404 "User Not Found"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Erorr"
 // @Router /api/auth/Token [get]
 func Token(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {

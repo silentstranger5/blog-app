@@ -35,7 +35,7 @@ You can build this application just like any other golang app:
 
 ```bash
 git clone https://github.com/silentstranger5/blog-app
-cd go-blog
+cd blog-app
 go build .
 ```
 

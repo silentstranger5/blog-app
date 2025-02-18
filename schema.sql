@@ -44,7 +44,7 @@ CREATE TABLE comments (
 );
 
 CREATE VIEW post_view AS
-SELECT posts.id, posts.title, posts.text, posts.created, users.username,
+SELECT posts.*, users.username,
     (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id AND likes.type = 'like') -
     (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id AND likes.type = 'dislike'),
     (SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id)

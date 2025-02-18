@@ -17,6 +17,10 @@ import (
 // @Produce json
 // @Param id path int true "Post ID"
 // @Success 200 {object} []Tag
+// @Failure 400 "Bad Request"
+// @Failure 404 "Post Not Found"
+// @Failure 500 "Internal Error"
+// @Failure 405 "Method Not Allowed"
 // @Router /api/tags/get/{id} [get]
 func GetTags(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -57,6 +61,9 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param name path string true "Tag Name"
 // @Success 200 {object} posts.Posts
+// @Failure 400 "Bad Request"
+// @Failure 404 "Tag Not Found"
+// @Failure 500 "Internal Error"
 // @Router /api/tags/post/{name} [get]
 func GetPosts(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")

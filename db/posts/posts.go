@@ -51,8 +51,8 @@ func GetPosts(db *sql.DB, ctx context.Context) ([]Post, error) {
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		err = rows.Scan(&post.Id, &post.Title, &post.Text, &post.Created,
-			&post.Author, &post.Likes, &post.Comments)
+		err = rows.Scan(&post.Id, &post.Title, &post.Text, &post.AuthorId,
+			&post.Created, &post.Author, &post.Likes, &post.Comments)
 		if err != nil {
 			return nil, err
 		}
@@ -63,9 +63,9 @@ func GetPosts(db *sql.DB, ctx context.Context) ([]Post, error) {
 
 func GetPost(db *sql.DB, ctx context.Context, id int) (Post, error) {
 	var post Post
-	err := db.QueryRowContext(ctx, "SELECT * FROM posts WHERE id = $1", id).Scan(
+	err := db.QueryRowContext(ctx, "SELECT * FROM post_view WHERE id = $1", id).Scan(
 		&post.Id, &post.Title, &post.Text, &post.AuthorId, &post.Created,
-	)
+		&post.Author, &post.Likes, &post.Comments)
 	if err != nil {
 		return Post{}, err
 	}
@@ -108,8 +108,8 @@ func FilterTag(db *sql.DB, ctx context.Context, tag tags.Tag) ([]Post, error) {
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		err = rows.Scan(&post.Id, &post.Title, &post.Text, &post.Created,
-			&post.Author, &post.Likes, &post.Comments)
+		err = rows.Scan(&post.Id, &post.Title, &post.Text, &post.AuthorId,
+			&post.Created, &post.Author, &post.Likes, &post.Comments)
 		if err != nil {
 			return nil, err
 		}
@@ -128,8 +128,8 @@ func FilterQuery(db *sql.DB, ctx context.Context, query string) ([]Post, error) 
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		err = rows.Scan(&post.Id, &post.Title, &post.Text, &post.Created,
-			&post.Author, &post.Likes, &post.Comments)
+		err = rows.Scan(&post.Id, &post.Title, &post.Text, &post.AuthorId,
+			&post.Created, &post.Author, &post.Likes, &post.Comments)
 		if err != nil {
 			return nil, err
 		}

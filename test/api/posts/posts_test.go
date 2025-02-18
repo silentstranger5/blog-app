@@ -92,9 +92,9 @@ func TestAddPost(t *testing.T) {
 
 func TestGetPosts(t *testing.T) {
 	postList := []posts.Post{
-		{Id: 1, Title: "New Post", Author: "user", Text: "Hello, World!"},
-		{Id: 2, Title: "New Post", Author: "user", Text: "Hello, World!"},
-		{Id: 3, Title: "Another Post", Author: "guest", Text: "Your text here!"},
+		{Id: 1, AuthorId: 1, Title: "New Post", Author: "user", Text: "Hello, World!"},
+		{Id: 2, AuthorId: 1, Title: "New Post", Author: "user", Text: "Hello, World!"},
+		{Id: 3, AuthorId: 2, Title: "Another Post", Author: "guest", Text: "Your text here!"},
 	}
 	req, err := http.NewRequest("GET", "/get", nil)
 	if err != nil {
@@ -130,11 +130,11 @@ func TestGetPost(t *testing.T) {
 		post   posts.Post
 		status int
 	}{
-		{posts.Post{Id: 1, AuthorId: 1, Title: "New Post", Text: "Hello, World!"},
+		{posts.Post{Id: 1, AuthorId: 1, Author: "user", Title: "New Post", Text: "Hello, World!"},
 			http.StatusOK},
-		{posts.Post{Id: 2, AuthorId: 1, Title: "New Post", Text: "Hello, World!"},
+		{posts.Post{Id: 2, AuthorId: 1, Author: "user", Title: "New Post", Text: "Hello, World!"},
 			http.StatusOK},
-		{posts.Post{Id: 3, AuthorId: 2, Title: "Another Post", Text: "Your text here!"},
+		{posts.Post{Id: 3, AuthorId: 2, Author: "guest", Title: "Another Post", Text: "Your text here!"},
 			http.StatusOK},
 		{posts.Post{Id: 4}, http.StatusNotFound},
 	}
@@ -180,51 +180,51 @@ func TestUpdatePost(t *testing.T) {
 		status int
 	}{
 		{
-			posts.Post{Id: 1, AuthorId: 1, Title: "First Post", Text: "New Text"},
+			posts.Post{Id: 1, AuthorId: 1, Author: "user", Title: "First Post", Text: "New Text"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.jYyRJbb0WImFoUUdcslQQfwnXTHJzne-6tsPd8Hrw0I",
 			http.StatusOK,
 		},
 		{
-			posts.Post{Id: 2, AuthorId: 1, Title: "Second Post", Text: "New Text"},
+			posts.Post{Id: 2, AuthorId: 1, Author: "user", Title: "Second Post", Text: "New Text"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.jYyRJbb0WImFoUUdcslQQfwnXTHJzne-6tsPd8Hrw0I",
 			http.StatusOK,
 		},
 		{
-			posts.Post{Id: 3, AuthorId: 2, Title: "New Post", Text: "Another Post"},
+			posts.Post{Id: 3, AuthorId: 2, Author: "guest", Title: "New Post", Text: "Another Post"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyfQ.9YCOE7tXJFvXEkLKezdd42NArXH6JXLtHbQu-KrwQSA",
 			http.StatusOK,
 		},
 		{
-			posts.Post{Id: 1, AuthorId: 1, Title: "New Title", Text: "New Text"},
+			posts.Post{Id: 1, AuthorId: 1, Author: "user", Title: "New Title", Text: "New Text"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyfQ.9YCOE7tXJFvXEkLKezdd42NArXH6JXLtHbQu-KrwQSA",
 			http.StatusForbidden,
 		},
 		{
-			posts.Post{Id: 3, AuthorId: 1, Title: "New Title", Text: "New Text"},
+			posts.Post{Id: 3, AuthorId: 1, Author: "user", Title: "New Title", Text: "New Text"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.jYyRJbb0WImFoUUdcslQQfwnXTHJzne-6tsPd8Hrw0I",
 			http.StatusForbidden,
 		},
 		{
-			posts.Post{Id: 1, AuthorId: 1, Title: "New Post"},
+			posts.Post{Id: 1, AuthorId: 1, Author: "user", Title: "New Post"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.jYyRJbb0WImFoUUdcslQQfwnXTHJzne-6tsPd8Hrw0I",
 			http.StatusBadRequest,
 		},
 		{
-			posts.Post{Id: 1, AuthorId: 1, Text: "Hello, World!"},
+			posts.Post{Id: 1, AuthorId: 1, Author: "user", Text: "Hello, World!"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.jYyRJbb0WImFoUUdcslQQfwnXTHJzne-6tsPd8Hrw0I",
 			http.StatusBadRequest,
 		},
 		{
-			posts.Post{Id: 1, AuthorId: 1},
+			posts.Post{Id: 1, AuthorId: 1, Author: "user"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.jYyRJbb0WImFoUUdcslQQfwnXTHJzne-6tsPd8Hrw0I",
 			http.StatusBadRequest,
 		},
 		{
-			posts.Post{Id: 1, AuthorId: 1, Title: "New Title", Text: "New Text"},
+			posts.Post{Id: 1, AuthorId: 1, Author: "user", Title: "New Title", Text: "New Text"},
 			"", http.StatusUnauthorized,
 		},
 		{
-			posts.Post{Id: 4, AuthorId: 1, Title: "New Title", Text: "New Text"},
+			posts.Post{Id: 4, AuthorId: 1, Author: "user", Title: "New Title", Text: "New Text"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.jYyRJbb0WImFoUUdcslQQfwnXTHJzne-6tsPd8Hrw0I",
 			http.StatusNotFound,
 		},

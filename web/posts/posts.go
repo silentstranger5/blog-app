@@ -392,6 +392,7 @@ func updatePost(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		post.Tags = tagList
 
 		files := []string{
 			"templates/base.html", "templates/posts/update.html",
@@ -407,9 +408,8 @@ func updatePost(w http.ResponseWriter, r *http.Request) {
 		}
 		tdata := struct {
 			Post   posts.Post
-			Tags   []tags.Tag
 			UserId int
-		}{post, tagList, userId}
+		}{post, userId}
 		err = util.Template(files, funcmap, w, tdata)
 		if err != nil {
 			http.Error(w, "Internal Error", http.StatusInternalServerError)
@@ -686,16 +686,18 @@ func filterTag(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	if status != http.StatusOK {
+	if status != http.StatusOK && status != http.StatusNotFound {
 		http.Error(w, string(body), status)
 		return
 	}
 
 	var postList []posts.Post
-	err = json.Unmarshal(body, &postList)
-	if err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-		return
+	if status != http.StatusNotFound {
+		err = json.Unmarshal(body, &postList)
+		if err != nil {
+			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			return
+		}
 	}
 
 	for i, post := range postList {
@@ -776,17 +778,19 @@ func searchPosts(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	if status != http.StatusOK {
+	if status != http.StatusOK && status != http.StatusNotFound {
 		http.Error(w, string(body), status)
 		return
 	}
 
 	var postList []posts.Post
-	err = json.Unmarshal(body, &postList)
-	if err != nil {
-		http.Error(w, "Internal Error", http.StatusInternalServerError)
-		log.Println("failed to unmarshal JSON:", err)
-		return
+	if status != http.StatusNotFound {
+		err = json.Unmarshal(body, &postList)
+		if err != nil {
+			http.Error(w, "Internal Error", http.StatusInternalServerError)
+			log.Println("failed to unmarshal JSON:", err)
+			return
+		}
 	}
 
 	for i, post := range postList {

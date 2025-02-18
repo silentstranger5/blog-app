@@ -63,9 +63,9 @@ func TestAddPost(t *testing.T) {
 
 func TestGetPosts(t *testing.T) {
 	postList := []posts.Post{
-		{Id: 1, Title: "First Post", Author: "user", Text: "Hello, World!"},
-		{Id: 2, Title: "Second Post", Author: "user", Text: "Your text here!"},
-		{Id: 3, Title: "Third Post", Author: "guest", Text: "Another post"},
+		{Id: 1, AuthorId: 1, Author: "user", Title: "First Post", Text: "Hello, World!"},
+		{Id: 2, AuthorId: 1, Author: "user", Title: "Second Post", Text: "Your text here!"},
+		{Id: 3, AuthorId: 2, Author: "guest", Title: "Third Post", Text: "Another post"},
 	}
 	dbPostList, err := posts.GetPosts(config.DB, config.Ctx)
 	if err != nil {
@@ -85,9 +85,9 @@ func TestGetPost(t *testing.T) {
 		post  posts.Post
 		error bool
 	}{
-		{posts.Post{Id: 1, AuthorId: 1, Title: "First Post", Text: "Hello, World!"}, false},
-		{posts.Post{Id: 2, AuthorId: 1, Title: "Second Post", Text: "Your text here!"}, false},
-		{posts.Post{Id: 3, AuthorId: 2, Title: "Third Post", Text: "Another post"}, false},
+		{posts.Post{Id: 1, AuthorId: 1, Author: "user", Title: "First Post", Text: "Hello, World!"}, false},
+		{posts.Post{Id: 2, AuthorId: 1, Author: "user", Title: "Second Post", Text: "Your text here!"}, false},
+		{posts.Post{Id: 3, AuthorId: 2, Author: "guest", Title: "Third Post", Text: "Another post"}, false},
 		{posts.Post{Id: 4}, true},
 	}
 	for i, test := range tests {
@@ -112,9 +112,9 @@ func TestUpdatePost(t *testing.T) {
 	tests := []struct {
 		post posts.Post
 	}{
-		{posts.Post{Id: 1, AuthorId: 1, Title: "New First Post", Text: "New Text"}},
-		{posts.Post{Id: 2, AuthorId: 1, Title: "New Second Post", Text: "New Text"}},
-		{posts.Post{Id: 3, AuthorId: 2, Title: "New Third Post", Text: "New Text"}},
+		{posts.Post{Id: 1, AuthorId: 1, Author: "user", Title: "New First Post", Text: "New Text"}},
+		{posts.Post{Id: 2, AuthorId: 1, Author: "user", Title: "New Second Post", Text: "New Text"}},
+		{posts.Post{Id: 3, AuthorId: 2, Author: "guest", Title: "New Third Post", Text: "New Text"}},
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
@@ -140,11 +140,11 @@ func TestFilterQuery(t *testing.T) {
 		query string
 		posts []posts.Post
 	}{
-		{"first", []posts.Post{{Id: 1, Title: "New First Post", Author: "user", Text: "New Text"}}},
+		{"first", []posts.Post{{Id: 1, AuthorId: 1, Author: "user", Title: "New First Post", Text: "New Text"}}},
 		{"post", []posts.Post{
-			{Id: 1, Title: "New First Post", Author: "user", Text: "New Text"},
-			{Id: 2, Title: "New Second Post", Author: "user", Text: "New Text"},
-			{Id: 3, Title: "New Third Post", Author: "guest", Text: "New Text"},
+			{Id: 1, AuthorId: 1, Author: "user", Title: "New First Post", Text: "New Text"},
+			{Id: 2, AuthorId: 1, Author: "user", Title: "New Second Post", Text: "New Text"},
+			{Id: 3, AuthorId: 2, Author: "guest", Title: "New Third Post", Text: "New Text"},
 		}},
 		{"query", nil},
 	}

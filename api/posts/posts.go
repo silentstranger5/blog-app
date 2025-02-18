@@ -21,6 +21,10 @@ import (
 // @Param post body Post true "Post"
 // @Param Authorization header string true "Auth Token"
 // @Success 200
+// @Failure 400 "Bad Request"
+// @Failure 401 "Invalid Auth Header"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
 // @Router /api/posts/add [post]
 func AddPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -97,6 +101,10 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 // @Tags posts
 // @Produce json
 // @Success 200 {object} []Post
+// @Failure 400 "Bad Request"
+// @Failure 404 "Posts Not Found"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
 // @Router /api/posts/get [get]
 func GetPosts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -131,6 +139,10 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param id path int true "Post ID"
 // @Success 200 {object} []Post
+// @Failure 400 "Bad Request"
+// @Failure 404 "Not Found"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
 // @Router /api/posts/get/{id} [get]
 func GetPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -173,6 +185,12 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 // @Param post body Post true "Post"
 // @Param Authorization header string true "Auth Token"
 // @Success 200
+// @Failure 400 "Bad Request"
+// @Failure 401 "Invalid Auth Token"
+// @Failure 403 "No Access To Post"
+// @Failure 404 "Post Not Found"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
 // @Router /api/posts/update/{id} [put]
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
@@ -269,6 +287,12 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 // @Param id path int true "Post ID"
 // @Param Authorization header string true "Auth Token"
 // @Success 200
+// @Failure 400 "Bad Request"
+// @Failure 401 "Invalid Auth Token"
+// @Failure 403 "No Access To Post"
+// @Failure 404 "Post Not Found"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
 // @Router /api/posts/delete/{id} [delete]
 func DeletePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
@@ -325,6 +349,11 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 // @Param id path int true "Post ID"
 // @Param Authorization header string true "Auth Token"
 // @Success 200
+// @Failure 400 "Bad Request"
+// @Failure 401 "Invalid Auth Header"
+// @Failure 404 "Post Not Found"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
 // @Router /api/posts/like/id [post]
 func LikePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -375,6 +404,11 @@ func LikePost(w http.ResponseWriter, r *http.Request) {
 // @Param id path int true "Post ID"
 // @Param Authorization header string true "Auth Token"
 // @Success 200
+// @Failure 400 "Bad Request"
+// @Failure 401 "Invalid Auth Header"
+// @Failure 404 "Post Not Found"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
 // @Router /api/posts/dislike/{id} [post]
 func DislikePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -425,6 +459,9 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param id path int true "Post ID"
 // @Success 200 {object} int
+// @Failure 400 "Bad Request"
+// @Failure 404 "Post Not Found"
+// @Failure 500 "Internal Error"
 // @Router /api/posts/likes/{id} [get]
 func GetLikes(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -470,6 +507,10 @@ func GetLikes(w http.ResponseWriter, r *http.Request) {
 // @Tags posts
 // @Param query path string true "Query"
 // @Success 200 {object} []Post
+// @Failure 400 "Bad Request"
+// @Failure 404 "Post Not Found"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
 // @Router /api/posts/search/{query} [get]
 func SearchPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {

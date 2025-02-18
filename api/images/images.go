@@ -18,6 +18,10 @@ import (
 // @Param image formData file true "Image File"
 // @Param Authorization header string true "Auth Header"
 // @Success 200
+// @Failure 400 "Bad Request"
+// @Failure 401 "Invalid Auth Token"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
 // @Router /api/images/upload [post]
 func uploadImage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -84,6 +88,9 @@ func uploadImage(w http.ResponseWriter, r *http.Request) {
 // @Tags images
 // @Produce json
 // @Success 200 {object} []Image
+// @Failure 405 "Method Not Allowed"
+// @Failure 404 "Images Not Found"
+// @Failure 500 "Internal Error"
 // @Router /api/images/get [get]
 func getImages(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -118,6 +125,8 @@ func getImages(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param id path int true "Image ID"
 // @Success 200 {object} Image
+// @Failure 400 "Bad Request"
+// @Failure 500 "Internal Error"
 // @Router /api/images/get/{id} [get]
 func getImage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -158,6 +167,11 @@ func getImage(w http.ResponseWriter, r *http.Request) {
 // @Param id path int true "Image ID"
 // @Param Authorization header string true "Auth Header"
 // @Success 200
+// @Failure 400 "Bad Request"
+// @Failure 401 "Invalid Auth Token"
+// @Failure 403 "No Access To Image"
+// @Failure 404 "Image Not Found"
+// @Failure 500 "Internal Error"
 // @Router /api/images/delete/{id} [delete]
 func deleteImage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {

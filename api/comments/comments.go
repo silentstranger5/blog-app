@@ -19,6 +19,10 @@ import (
 // @Param Authorization header string true "Auth Token"
 // @Param comment body Comment true "Comment"
 // @Success 200
+// @Failure 400 "Bad Request"
+// @Failure 401 "Invalid Auth Header"
+// @Failure 404 "Post Not Found"
+// @Failure 405 "Method Not Allowed"
 // @Router /api/comments/add/{id} [post]
 func AddComment(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -90,6 +94,10 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param id path int true "Post ID"
 // @Success 200 {object} []Comment
+// @Failure 400 "Bad Request"
+// @Failure 404 "Comments Not Found"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
 // @Router /api/comments/post/{id} [get]
 func GetComments(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -130,6 +138,10 @@ func GetComments(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param id path int true "Comment ID"
 // @Success 200 {object} Comment
+// @Failure 400 "Bad Request"
+// @Failure 404 "Comment Not Found"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
 // @Router /api/comments/get/{id} [get]
 func GetComment(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -172,6 +184,11 @@ func GetComment(w http.ResponseWriter, r *http.Request) {
 // @Param comment body Comment true "Comment"
 // @Param Authorization header string true "Auth Token"
 // @Success 200
+// @Failure 400 "Bad Request"
+// @Failure 401 "Invalid Auth Token"
+// @Failure 403 "No Access To Comment"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
 // @Router /api/comments/update/{id} [post]
 func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -246,6 +263,12 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 // @Param id path int true "Comment ID"
 // @Param Authorization header string true "Auth Token"
 // @Success 200
+// @Failure 400 "Bad Request"
+// @Failure 401 "Invalid Auth Token"
+// @Failure 403 "No Access To Comment"
+// @Failure 404 "Comment Not Found"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
 // @Router /api/comments/delete/{id} [delete]
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {

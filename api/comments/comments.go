@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 // @Summary Add a comment to the post
@@ -23,8 +24,8 @@ import (
 // @Failure 401 "Invalid Auth Header"
 // @Failure 404 "Post Not Found"
 // @Failure 405 "Method Not Allowed"
-// @Router /api/comments/add/{id} [post]
-func AddComment(w http.ResponseWriter, r *http.Request) {
+// @Router /api/comments/{id} [post]
+func add(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -41,11 +42,17 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postId := util.ParseUrlId(r.URL.Path)
-	if postId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
 		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
+	postId, err := strconv.Atoi(pathVal)
+	if err != nil {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+
 	_, err = posts.GetPost(config.DB, config.Ctx, postId)
 	if err != nil && err != sql.ErrNoRows {
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
@@ -89,50 +96,6 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("post successfully commented"))
 }
 
-// @Summary Get comments for the post
-// @Tags comments
-// @Produce json
-// @Param id path int true "Post ID"
-// @Success 200 {object} []Comment
-// @Failure 400 "Bad Request"
-// @Failure 404 "Comments Not Found"
-// @Failure 405 "Method Not Allowed"
-// @Failure 500 "Internal Error"
-// @Router /api/comments/post/{id} [get]
-func GetComments(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	postId := util.ParseUrlId(r.URL.Path)
-	if postId == 0 {
-		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
-		return
-	}
-
-	commentList, err := comments.GetComments(config.DB, config.Ctx, postId)
-	if err != nil {
-		http.Error(w, "Internal Error", http.StatusInternalServerError)
-		log.Println(err)
-		return
-	}
-	if commentList == nil {
-		http.Error(w, "Not Found", http.StatusNotFound)
-		return
-	}
-
-	data, err := json.Marshal(&commentList)
-	if err != nil {
-		http.Error(w, "Internal Error", http.StatusInternalServerError)
-		log.Println("failed to marshal JSON:", err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
-}
-
 // @Summary Get the comment by ID
 // @Tags comments
 // @Produce json
@@ -142,15 +105,20 @@ func GetComments(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 "Comment Not Found"
 // @Failure 405 "Method Not Allowed"
 // @Failure 500 "Internal Error"
-// @Router /api/comments/get/{id} [get]
-func GetComment(w http.ResponseWriter, r *http.Request) {
+// @Router /api/comments/{id} [get]
+func get(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	commentId := util.ParseUrlId(r.URL.Path)
-	if commentId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL", http.StatusBadRequest)
+		return
+	}
+	commentId, err := strconv.Atoi(pathVal)
+	if err != nil {
 		http.Error(w, "Invalid URL", http.StatusBadRequest)
 		return
 	}
@@ -189,15 +157,20 @@ func GetComment(w http.ResponseWriter, r *http.Request) {
 // @Failure 403 "No Access To Comment"
 // @Failure 405 "Method Not Allowed"
 // @Failure 500 "Internal Error"
-// @Router /api/comments/update/{id} [post]
-func UpdateComment(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+// @Router /api/comments/{id} [put]
+func update(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	commentId := util.ParseUrlId(r.URL.Path)
-	if commentId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL", http.StatusBadRequest)
+		return
+	}
+	commentId, err := strconv.Atoi(pathVal)
+	if err != nil {
 		http.Error(w, "Invalid URL", http.StatusBadRequest)
 		return
 	}
@@ -269,15 +242,20 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 "Comment Not Found"
 // @Failure 405 "Method Not Allowed"
 // @Failure 500 "Internal Error"
-// @Router /api/comments/delete/{id} [delete]
-func DeleteComment(w http.ResponseWriter, r *http.Request) {
+// @Router /api/comments/{id} [delete]
+func delete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	commentId := util.ParseUrlId(r.URL.Path)
-	if commentId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL", http.StatusBadRequest)
+		return
+	}
+	commentId, err := strconv.Atoi(pathVal)
+	if err != nil {
 		http.Error(w, "Invalid URL", http.StatusBadRequest)
 		return
 	}
@@ -321,10 +299,9 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 
 func ServeMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/add/", AddComment)
-	mux.HandleFunc("/get/", GetComment)
-	mux.HandleFunc("/post/", GetComments)
-	mux.HandleFunc("/update/", UpdateComment)
-	mux.HandleFunc("/delete/", DeleteComment)
+	mux.HandleFunc("GET /{id}", get)
+	mux.HandleFunc("POST /{id}", add)
+	mux.HandleFunc("PUT /{id}", update)
+	mux.HandleFunc("DELETE /{id}", delete)
 	return mux
 }

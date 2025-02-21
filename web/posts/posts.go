@@ -8,6 +8,7 @@ import (
 	"blog/util"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -19,7 +20,7 @@ import (
 	"github.com/russross/blackfriday/v2"
 )
 
-func getPosts(w http.ResponseWriter, r *http.Request) {
+func get(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -41,10 +42,8 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	body, status, err := util.Request(
-		"GET", config.Host+"/api/posts/get",
-		token, nil,
-	)
+	url := fmt.Sprintf("%s/api/posts/", config.Host)
+	body, status, err := util.Request("GET", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -105,14 +104,19 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getPost(w http.ResponseWriter, r *http.Request) {
+func getId(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	postId := util.ParseUrlId(r.URL.Path)
-	if postId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+	postId, err := strconv.Atoi(pathVal)
+	if err != nil {
 		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
@@ -133,10 +137,8 @@ func getPost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	body, status, err := util.Request(
-		"GET", config.Host+"/api/posts/get/"+strconv.Itoa(postId),
-		token, nil,
-	)
+	path := fmt.Sprintf("%s/api/posts/%d", config.Host, postId)
+	body, status, err := util.Request("GET", path, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -163,10 +165,8 @@ func getPost(w http.ResponseWriter, r *http.Request) {
 	)
 	post.Text = string(markdown)
 
-	body, status, err = util.Request(
-		"GET", config.Host+"/api/comments/post/"+strconv.Itoa(postId),
-		token, nil,
-	)
+	path = fmt.Sprintf("%s/api/posts/%d/comments", config.Host, postId)
+	body, status, err = util.Request("GET", path, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
 		log.Println(err)
@@ -187,10 +187,8 @@ func getPost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	body, status, err = util.Request(
-		"GET", config.Host+"/api/tags/get/"+strconv.Itoa(postId),
-		token, nil,
-	)
+	path = fmt.Sprintf("%s/api/posts/%d/tags", config.Host, postId)
+	body, status, err = util.Request("GET", path, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
 		log.Println(err)
@@ -234,7 +232,7 @@ func getPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func addPost(w http.ResponseWriter, r *http.Request) {
+func add(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		token, err := util.ParseAuthCookie(r)
 		if err != nil && err != http.ErrNoCookie {
@@ -299,10 +297,8 @@ func addPost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		body, status, err := util.Request(
-			"POST", config.Host+"/api/posts/add",
-			token, bytes.NewBuffer(data),
-		)
+		url := fmt.Sprintf("%s/api/posts/", config.Host)
+		body, status, err := util.Request("POST", url, token, bytes.NewBuffer(data))
 		if status == http.StatusInternalServerError {
 			http.Error(w, "Internal Error", status)
 			log.Println(err)
@@ -319,10 +315,15 @@ func addPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func updatePost(w http.ResponseWriter, r *http.Request) {
+func update(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		postId := util.ParseUrlId(r.URL.Path)
-		if postId == 0 {
+		pathVal := r.PathValue("id")
+		if pathVal == "" {
+			http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+			return
+		}
+		postId, err := strconv.Atoi(pathVal)
+		if err != nil {
 			http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 			return
 		}
@@ -344,10 +345,8 @@ func updatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		body, status, err := util.Request(
-			"GET", config.Host+"/api/posts/get/"+strconv.Itoa(postId),
-			token, nil,
-		)
+		url := fmt.Sprintf("%s/api/posts/%d", config.Host, postId)
+		body, status, err := util.Request("GET", url, token, nil)
 		if status == http.StatusInternalServerError {
 			http.Error(w, "Internal Error", status)
 			log.Println(err)
@@ -369,10 +368,8 @@ func updatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		body, status, err = util.Request(
-			"GET", config.Host+"/api/tags/get/"+strconv.Itoa(postId),
-			token, nil,
-		)
+		url = fmt.Sprintf("%s/api/posts/%d/tags", config.Host, postId)
+		body, status, err = util.Request("GET", url, token, nil)
 		if status == http.StatusInternalServerError {
 			http.Error(w, "Internal Error", http.StatusInternalServerError)
 			log.Println(err)
@@ -418,8 +415,13 @@ func updatePost(w http.ResponseWriter, r *http.Request) {
 		}
 
 	} else if r.Method == http.MethodPost {
-		postId := util.ParseUrlId(r.URL.Path)
-		if postId == 0 {
+		pathVal := r.PathValue("id")
+		if pathVal == "" {
+			http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+			return
+		}
+		postId, err := strconv.Atoi(pathVal)
+		if err != nil {
 			http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 			return
 		}
@@ -458,10 +460,8 @@ func updatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		body, status, err := util.Request(
-			"PUT", config.Host+"/api/posts/update/"+strconv.Itoa(postId),
-			token, bytes.NewBuffer(data),
-		)
+		url := fmt.Sprintf("%s/api/posts/%d", config.Host, postId)
+		body, status, err := util.Request("PUT", url, token, bytes.NewBuffer(data))
 		if status == http.StatusInternalServerError {
 			http.Error(w, "Internal Error", status)
 			log.Println(err)
@@ -472,20 +472,26 @@ func updatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.Header().Set("HX-Redirect", "/web/posts/get/"+strconv.Itoa(postId))
+		url = fmt.Sprintf("/web/posts/get/%d", postId)
+		w.Header().Set("HX-Redirect", url)
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	}
 }
 
-func deletePost(w http.ResponseWriter, r *http.Request) {
+func delete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	postId := util.ParseUrlId(r.URL.Path)
-	if postId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+	postId, err := strconv.Atoi(pathVal)
+	if err != nil {
 		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
@@ -515,10 +521,8 @@ func deletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err := util.Request(
-		"DELETE", config.Host+"/api/posts/delete/"+strconv.Itoa(postId),
-		token, bytes.NewBuffer(data),
-	)
+	url := fmt.Sprintf("%s/api/posts/%d", config.Host, postId)
+	body, status, err := util.Request("DELETE", url, token, bytes.NewBuffer(data))
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -534,14 +538,19 @@ func deletePost(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }
 
-func likePost(w http.ResponseWriter, r *http.Request) {
+func like(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	postId := util.ParseUrlId(r.URL.Path)
-	if postId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+	postId, err := strconv.Atoi(pathVal)
+	if err != nil {
 		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
@@ -559,10 +568,8 @@ func likePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err := util.Request(
-		"POST", config.Host+"/api/posts/like/"+strconv.Itoa(postId),
-		token, nil,
-	)
+	url := fmt.Sprintf("%s/api/posts/%d/like", config.Host, postId)
+	body, status, err := util.Request("POST", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -573,10 +580,8 @@ func likePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err = util.Request(
-		"GET", config.Host+"/api/posts/likes/"+strconv.Itoa(postId),
-		token, nil,
-	)
+	url = fmt.Sprintf("%s/api/posts/%d/likes", config.Host, postId)
+	body, status, err = util.Request("GET", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -591,14 +596,19 @@ func likePost(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(body))
 }
 
-func dislikePost(w http.ResponseWriter, r *http.Request) {
+func dislike(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	postId := util.ParseUrlId(r.URL.Path)
-	if postId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+	postId, err := strconv.Atoi(pathVal)
+	if err != nil {
 		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
@@ -616,10 +626,8 @@ func dislikePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err := util.Request(
-		"POST", config.Host+"/api/posts/dislike/"+strconv.Itoa(postId),
-		token, nil,
-	)
+	url := fmt.Sprintf("%s/api/posts/%d/dislike", config.Host, postId)
+	body, status, err := util.Request("POST", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -630,10 +638,8 @@ func dislikePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err = util.Request(
-		"GET", config.Host+"/api/posts/likes/"+strconv.Itoa(postId),
-		token, nil,
-	)
+	url = fmt.Sprintf("%s/api/posts/%d/likes", config.Host, postId)
+	body, status, err = util.Request("GET", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -648,18 +654,17 @@ func dislikePost(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(body))
 }
 
-func filterTag(w http.ResponseWriter, r *http.Request) {
+func tag(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	parts := strings.Split(r.URL.Path, "/")
-	if !(len(parts) == 3 && parts[2] != "") {
-		http.Error(w, "Invalid URL format", http.StatusBadRequest)
+	tagName := r.PathValue("name")
+	if tagName == "" {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
-	tagName := parts[2]
 
 	var userId int
 	token, err := util.ParseAuthCookie(r)
@@ -677,10 +682,8 @@ func filterTag(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	body, status, err := util.Request(
-		"GET", config.Host+"/api/tags/posts/"+tagName,
-		token, nil,
-	)
+	url := fmt.Sprintf("%s/api/posts/tags/t/%s", config.Host, tagName)
+	body, status, err := util.Request("GET", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
 		log.Println(err)
@@ -741,7 +744,7 @@ func filterTag(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func searchPosts(w http.ResponseWriter, r *http.Request) {
+func search(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -769,10 +772,8 @@ func searchPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err := util.Request(
-		"GET", config.Host+"/api/posts/search/"+query,
-		token, nil,
-	)
+	url := fmt.Sprintf("%s/api/posts/search/q/%s", config.Host, query)
+	body, status, err := util.Request("GET", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -836,14 +837,14 @@ func searchPosts(w http.ResponseWriter, r *http.Request) {
 
 func ServeMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/get", getPosts)
-	mux.HandleFunc("/add", addPost)
-	mux.HandleFunc("/get/", getPost)
-	mux.HandleFunc("/update/", updatePost)
-	mux.HandleFunc("/delete/", deletePost)
-	mux.HandleFunc("/like/", likePost)
-	mux.HandleFunc("/dislike/", dislikePost)
-	mux.HandleFunc("/tag/", filterTag)
-	mux.HandleFunc("/search", searchPosts)
+	mux.HandleFunc("/add", add)
+	mux.HandleFunc("/update/{id}", update)
+	mux.HandleFunc("GET /get", get)
+	mux.HandleFunc("GET /get/{id}", getId)
+	mux.HandleFunc("DELETE /delete/{id}", delete)
+	mux.HandleFunc("POST /like/{id}", like)
+	mux.HandleFunc("POST /dislike/{id}", dislike)
+	mux.HandleFunc("GET /tag/{name}", tag)
+	mux.HandleFunc("GET /search", search)
 	return mux
 }

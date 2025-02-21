@@ -14,7 +14,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-// @Summary Register a new user
+// @Summary register a new user
 // @Tags auth
 // @Accept json
 // @Param user body User true "User"
@@ -23,8 +23,8 @@ import (
 // @Failure 405 "Method Not Allowed"
 // @Failure 409 "User Already Exists"
 // @Failure 500 "Internal Error"
-// @Router /api/auth/Register [post]
-func Register(w http.ResponseWriter, r *http.Request) {
+// @Router /api/auth/register [post]
+func register(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -75,7 +75,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("user successfully registered"))
 }
 
-// @Summary Get auth Token for the user
+// @Summary Get auth token for the user
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -86,8 +86,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 "User Not Found"
 // @Failure 405 "Method Not Allowed"
 // @Failure 500 "Internal Erorr"
-// @Router /api/auth/Token [get]
-func Token(w http.ResponseWriter, r *http.Request) {
+// @Router /api/auth/token [get]
+func token(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -149,7 +149,7 @@ func Token(w http.ResponseWriter, r *http.Request) {
 
 func ServeMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/register", Register)
-	mux.HandleFunc("/token", Token)
+	mux.HandleFunc("/register", register)
+	mux.HandleFunc("/token", token)
 	return mux
 }

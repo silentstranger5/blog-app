@@ -100,7 +100,8 @@ func FilterTag(db *sql.DB, ctx context.Context, tag tags.Tag) ([]Post, error) {
 	rows, err := db.QueryContext(ctx,
 		`SELECT post_view.* FROM post_view 
 			JOIN post_tags ON post_view.id = post_tags.post_id
-			JOIN tags ON post_tags.tag_id = tags.id WHERE tags.name = $1`, tag.Name)
+			JOIN tags ON post_tags.tag_id = tags.id WHERE tags.name = $1
+			ORDER BY post_view.created DESC`, tag.Name)
 	if err != nil {
 		return nil, err
 	}

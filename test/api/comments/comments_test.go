@@ -2,6 +2,7 @@ package comments_test
 
 import (
 	comments_api "blog/api/comments"
+	posts_api "blog/api/posts"
 	"blog/config"
 	"blog/db/auth"
 	"blog/db/comments"
@@ -14,7 +15,6 @@ import (
 	"net/http/httptest"
 	"os"
 	"reflect"
-	"strconv"
 	"testing"
 	"time"
 )
@@ -74,17 +74,14 @@ func TestAddComment(t *testing.T) {
 		{comments.Comment{Id: 4, AuthorId: 2, PostId: 2, Author: "guest", Text: "Fourth Comment"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyfQ.9YCOE7tXJFvXEkLKezdd42NArXH6JXLtHbQu-KrwQSA",
 			http.StatusOK},
+		{comments.Comment{Id: 5, AuthorId: 1, PostId: 3, Author: "user", Text: "New Comment"},
+			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.jYyRJbb0WImFoUUdcslQQfwnXTHJzne-6tsPd8Hrw0I",
+			http.StatusNotFound},
 		{comments.Comment{Id: 5, AuthorId: 1, PostId: 1, Author: "user"},
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyfQ.9YCOE7tXJFvXEkLKezdd42NArXH6JXLtHbQu-KrwQSA",
-			http.StatusBadRequest},
-		{comments.Comment{Id: 5, AuthorId: 1, Author: "user"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyfQ.9YCOE7tXJFvXEkLKezdd42NArXH6JXLtHbQu-KrwQSA",
 			http.StatusBadRequest},
 		{comments.Comment{Id: 5, AuthorId: 1, PostId: 1, Author: "user", Text: "New Comment"}, "",
 			http.StatusUnauthorized},
-		{comments.Comment{Id: 5, AuthorId: 1, PostId: 3, Author: "user", Text: "New Comment"},
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.jYyRJbb0WImFoUUdcslQQfwnXTHJzne-6tsPd8Hrw0I",
-			http.StatusNotFound},
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
@@ -92,18 +89,16 @@ func TestAddComment(t *testing.T) {
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
-			req, err := http.NewRequest(
-				"POST", "/add/"+strconv.Itoa(test.comment.PostId),
-				bytes.NewBuffer(data),
-			)
+			url := fmt.Sprintf("/%d", test.comment.PostId)
+			req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			req.Header.Set("Authorization", "Bearer "+test.token)
 			req.Header.Set("Content-Type", "application/json")
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(comments_api.AddComment)
-			handler.ServeHTTP(rr, req)
+			mux := comments_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)
@@ -111,15 +106,13 @@ func TestAddComment(t *testing.T) {
 			if status != http.StatusOK {
 				return
 			}
-			req, err = http.NewRequest(
-				"GET", "/get/"+strconv.Itoa(test.comment.Id), nil,
-			)
+			url = fmt.Sprintf("/%d", test.comment.Id)
+			req, err = http.NewRequest("GET", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr = httptest.NewRecorder()
-			handler = http.HandlerFunc(comments_api.GetComment)
-			handler.ServeHTTP(rr, req)
+			mux.ServeHTTP(rr, req)
 			status = rr.Code
 			if status != http.StatusOK {
 				t.Fatalf("test failed: %v", status)
@@ -159,15 +152,14 @@ func TestGetComments(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			req, err := http.NewRequest(
-				"GET", "/post/"+strconv.Itoa(test.postid), nil,
-			)
+			url := fmt.Sprintf("/%d/comments", test.postid)
+			req, err := http.NewRequest("GET", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(comments_api.GetComments)
-			handler.ServeHTTP(rr, req)
+			mux := posts_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)
@@ -208,15 +200,14 @@ func TestGetComment(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			req, err := http.NewRequest(
-				"GET", "/get/"+strconv.Itoa(test.comment.Id), nil,
-			)
+			url := fmt.Sprintf("/%d", test.comment.Id)
+			req, err := http.NewRequest("GET", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(comments_api.GetComment)
-			handler.ServeHTTP(rr, req)
+			mux := comments_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)
@@ -285,18 +276,16 @@ func TestUpdateComment(t *testing.T) {
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
-			req, err := http.NewRequest(
-				"POST", "/update/"+strconv.Itoa(test.comment.Id),
-				bytes.NewBuffer(data),
-			)
+			url := fmt.Sprintf("/%d", test.comment.Id)
+			req, err := http.NewRequest("PUT", url, bytes.NewBuffer(data))
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			req.Header.Set("Authorization", "Bearer "+test.token)
 			req.Header.Set("Content-Type", "application/json")
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(comments_api.UpdateComment)
-			handler.ServeHTTP(rr, req)
+			mux := comments_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)
@@ -304,15 +293,13 @@ func TestUpdateComment(t *testing.T) {
 			if status != http.StatusOK {
 				return
 			}
-			req, err = http.NewRequest(
-				"GET", "/get/"+strconv.Itoa(test.comment.Id), nil,
-			)
+			url = fmt.Sprintf("/%d", test.comment.Id)
+			req, err = http.NewRequest("GET", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr = httptest.NewRecorder()
-			handler = http.HandlerFunc(comments_api.GetComment)
-			handler.ServeHTTP(rr, req)
+			mux.ServeHTTP(rr, req)
 			status = rr.Code
 			if status != http.StatusOK {
 				t.Fatalf("test failed: %v", status)
@@ -351,16 +338,15 @@ func TestDeleteComment(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			req, err := http.NewRequest(
-				"DELETE", "/delete/"+strconv.Itoa(test.postid), nil,
-			)
+			url := fmt.Sprintf("/%d", test.postid)
+			req, err := http.NewRequest("DELETE", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			req.Header.Set("Authorization", "Bearer "+test.token)
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(comments_api.DeleteComment)
-			handler.ServeHTTP(rr, req)
+			mux := comments_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)
@@ -368,15 +354,13 @@ func TestDeleteComment(t *testing.T) {
 			if status != http.StatusOK {
 				return
 			}
-			req, err = http.NewRequest(
-				"GET", "/get/"+strconv.Itoa(test.postid), nil,
-			)
+			url = fmt.Sprintf("/%d", test.postid)
+			req, err = http.NewRequest("GET", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr = httptest.NewRecorder()
-			handler = http.HandlerFunc(comments_api.GetComment)
-			handler.ServeHTTP(rr, req)
+			mux.ServeHTTP(rr, req)
 			status = rr.Code
 			if status != http.StatusNotFound {
 				t.Fatalf("test failed: %v", status)

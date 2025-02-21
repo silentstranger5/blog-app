@@ -6,14 +6,14 @@ import (
 	"blog/util"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"text/template"
 	"time"
 )
 
-func addComment(w http.ResponseWriter, r *http.Request) {
+func add(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -59,10 +59,8 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err := util.Request(
-		"POST", config.Host+"/api/comments/add/"+strconv.Itoa(postId),
-		token, bytes.NewReader(data),
-	)
+	url := fmt.Sprintf("%s/api/comments/%d", config.Host, postId)
+	body, status, err := util.Request("POST", url, token, bytes.NewReader(data))
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -73,10 +71,8 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err = util.Request(
-		"GET", config.Host+"/api/comments/post/"+strconv.Itoa(postId),
-		token, nil,
-	)
+	url = fmt.Sprintf("%s/api/posts/%d/comments", config.Host, postId)
+	body, status, err = util.Request("GET", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -111,7 +107,7 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func updateComment(w http.ResponseWriter, r *http.Request) {
+func update(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		commentId := util.ParseUrlId(r.URL.Path)
 		if commentId == 0 {
@@ -136,10 +132,8 @@ func updateComment(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		body, status, err := util.Request(
-			"GET", config.Host+"/api/comments/get/"+strconv.Itoa(commentId),
-			token, nil,
-		)
+		url := fmt.Sprintf("%s/api/comments/%d", config.Host, commentId)
+		body, status, err := util.Request("GET", url, token, nil)
 		if status == http.StatusInternalServerError {
 			http.Error(w, "Internal Error", status)
 			log.Println(err)
@@ -210,10 +204,8 @@ func updateComment(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		body, status, err := util.Request(
-			"POST", config.Host+"/api/comments/update/"+strconv.Itoa(commentId),
-			token, bytes.NewBuffer(data),
-		)
+		url := fmt.Sprintf("%s/api/comments/%d", config.Host, commentId)
+		body, status, err := util.Request("PUT", url, token, bytes.NewBuffer(data))
 		if status == http.StatusInternalServerError {
 			http.Error(w, "Internal Error", status)
 			log.Println(err)
@@ -224,10 +216,8 @@ func updateComment(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		body, status, err = util.Request(
-			"GET", config.Host+"/api/comments/get/"+strconv.Itoa(commentId),
-			token, nil,
-		)
+		url = fmt.Sprintf("%s/api/comments/%d", config.Host, commentId)
+		body, status, err = util.Request("GET", url, token, nil)
 		if status == http.StatusInternalServerError {
 			http.Error(w, "Internal Error", status)
 			log.Println(err)
@@ -262,7 +252,7 @@ func updateComment(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func deleteComment(w http.ResponseWriter, r *http.Request) {
+func delete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -291,10 +281,8 @@ func deleteComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err := util.Request(
-		"GET", config.Host+"/api/comments/get/"+strconv.Itoa(commentId),
-		token, nil,
-	)
+	url := fmt.Sprintf("%s/api/comments/%d", config.Host, commentId)
+	body, status, err := util.Request("GET", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -313,10 +301,8 @@ func deleteComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err = util.Request(
-		"DELETE", config.Host+"/api/comments/delete/"+strconv.Itoa(commentId),
-		token, nil,
-	)
+	url = fmt.Sprintf("%s/api/comments/%d", config.Host, commentId)
+	body, status, err = util.Request("DELETE", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -327,10 +313,8 @@ func deleteComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err = util.Request(
-		"GET", config.Host+"/api/comments/post/"+strconv.Itoa(comment.PostId),
-		token, nil,
-	)
+	url = fmt.Sprintf("%s/api/posts/%d/comments", config.Host, comment.PostId)
+	body, status, err = util.Request("GET", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -368,8 +352,8 @@ func deleteComment(w http.ResponseWriter, r *http.Request) {
 
 func ServeMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/add/", addComment)
-	mux.HandleFunc("/update/", updateComment)
-	mux.HandleFunc("/delete/", deleteComment)
+	mux.HandleFunc("/add/", add)
+	mux.HandleFunc("/update/", update)
+	mux.HandleFunc("/delete/", delete)
 	return mux
 }

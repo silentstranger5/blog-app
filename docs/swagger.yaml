@@ -74,7 +74,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/auth/Register:
+  /api/auth/register:
     post:
       consumes:
       - application/json
@@ -96,10 +96,10 @@ paths:
           description: User Already Exists
         "500":
           description: Internal Error
-      summary: Register a new user
+      summary: register a new user
       tags:
       - auth
-  /api/auth/Token:
+  /api/auth/token:
     get:
       consumes:
       - application/json
@@ -127,10 +127,65 @@ paths:
           description: Method Not Allowed
         "500":
           description: Internal Erorr
-      summary: Get auth Token for the user
+      summary: Get auth token for the user
       tags:
       - auth
-  /api/comments/add/{id}:
+  /api/comments/{id}:
+    delete:
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Token
+        "403":
+          description: No Access To Comment
+        "404":
+          description: Comment Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
+      summary: Delete the comment
+      tags:
+      - comments
+    get:
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/comments.Comment'
+        "400":
+          description: Bad Request
+        "404":
+          description: Comment Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
+      summary: Get the comment by ID
+      tags:
+      - comments
     post:
       consumes:
       - application/json
@@ -165,93 +220,7 @@ paths:
       summary: Add a comment to the post
       tags:
       - comments
-  /api/comments/delete/{id}:
-    delete:
-      parameters:
-      - description: Comment ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "401":
-          description: Invalid Auth Token
-        "403":
-          description: No Access To Comment
-        "404":
-          description: Comment Not Found
-        "405":
-          description: Method Not Allowed
-        "500":
-          description: Internal Error
-      summary: Delete the comment
-      tags:
-      - comments
-  /api/comments/get/{id}:
-    get:
-      parameters:
-      - description: Comment ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/comments.Comment'
-        "400":
-          description: Bad Request
-        "404":
-          description: Comment Not Found
-        "405":
-          description: Method Not Allowed
-        "500":
-          description: Internal Error
-      summary: Get the comment by ID
-      tags:
-      - comments
-  /api/comments/post/{id}:
-    get:
-      parameters:
-      - description: Post ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/comments.Comment'
-            type: array
-        "400":
-          description: Bad Request
-        "404":
-          description: Comments Not Found
-        "405":
-          description: Method Not Allowed
-        "500":
-          description: Internal Error
-      summary: Get comments for the post
-      tags:
-      - comments
-  /api/comments/update/{id}:
-    post:
+    put:
       consumes:
       - application/json
       parameters:
@@ -287,36 +256,7 @@ paths:
       summary: Update the comment
       tags:
       - comments
-  /api/images/delete/{id}:
-    delete:
-      parameters:
-      - description: Image ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Auth Header
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "401":
-          description: Invalid Auth Token
-        "403":
-          description: No Access To Image
-        "404":
-          description: Image Not Found
-        "500":
-          description: Internal Error
-      summary: Delete Image
-      tags:
-      - images
-  /api/images/get:
+  /api/images/:
     get:
       produces:
       - application/json
@@ -336,29 +276,6 @@ paths:
       summary: Get images
       tags:
       - images
-  /api/images/get/{id}:
-    get:
-      parameters:
-      - description: Image ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/images.Image'
-        "400":
-          description: Bad Request
-        "500":
-          description: Internal Error
-      summary: Get Image by ID
-      tags:
-      - images
-  /api/images/upload:
     post:
       consumes:
       - multipart/form-data
@@ -387,7 +304,78 @@ paths:
       summary: Upload an image
       tags:
       - images
-  /api/posts/add:
+  /api/images/{id}:
+    delete:
+      parameters:
+      - description: Image ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Auth Header
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Token
+        "403":
+          description: No Access To Image
+        "404":
+          description: Image Not Found
+        "500":
+          description: Internal Error
+      summary: Delete Image
+      tags:
+      - images
+    get:
+      parameters:
+      - description: Image ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/images.Image'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Error
+      summary: Get Image by ID
+      tags:
+      - images
+  /api/posts/:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/posts.Post'
+            type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Posts Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
+      summary: Get post list
+      tags:
+      - posts
     post:
       consumes:
       - application/json
@@ -417,7 +405,7 @@ paths:
       summary: Add a new post
       tags:
       - posts
-  /api/posts/delete/{id}:
+  /api/posts/{id}:
     delete:
       parameters:
       - description: Post ID
@@ -448,58 +436,6 @@ paths:
       summary: Delete a post
       tags:
       - posts
-  /api/posts/dislike/{id}:
-    post:
-      parameters:
-      - description: Post ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "401":
-          description: Invalid Auth Header
-        "404":
-          description: Post Not Found
-        "405":
-          description: Method Not Allowed
-        "500":
-          description: Internal Error
-      summary: Dislike a post
-      tags:
-      - posts
-  /api/posts/get:
-    get:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/posts.Post'
-            type: array
-        "400":
-          description: Bad Request
-        "404":
-          description: Posts Not Found
-        "405":
-          description: Method Not Allowed
-        "500":
-          description: Internal Error
-      summary: Get post list
-      tags:
-      - posts
-  /api/posts/get/{id}:
     get:
       parameters:
       - description: Post ID
@@ -527,86 +463,6 @@ paths:
       summary: Get a post by ID
       tags:
       - posts
-  /api/posts/like/id:
-    post:
-      parameters:
-      - description: Post ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "401":
-          description: Invalid Auth Header
-        "404":
-          description: Post Not Found
-        "405":
-          description: Method Not Allowed
-        "500":
-          description: Internal Error
-      summary: Like a post
-      tags:
-      - posts
-  /api/posts/likes/{id}:
-    get:
-      parameters:
-      - description: Post ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: integer
-        "400":
-          description: Bad Request
-        "404":
-          description: Post Not Found
-        "500":
-          description: Internal Error
-      summary: Get likes for the post
-      tags:
-      - posts
-  /api/posts/search/{query}:
-    get:
-      parameters:
-      - description: Query
-        in: path
-        name: query
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/posts.Post'
-            type: array
-        "400":
-          description: Bad Request
-        "404":
-          description: Post Not Found
-        "405":
-          description: Method Not Allowed
-        "500":
-          description: Internal Error
-      summary: Search posts by title
-      tags:
-      - posts
-  /api/posts/update/{id}:
     put:
       consumes:
       - application/json
@@ -645,7 +501,117 @@ paths:
       summary: Update a post
       tags:
       - posts
-  /api/tags/get/{id}:
+  /api/posts/{id}/comments:
+    get:
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/comments.Comment'
+            type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Comments Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
+      summary: Get comments for the post
+      tags:
+      - comments
+  /api/posts/{id}/dislike:
+    post:
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Header
+        "404":
+          description: Post Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
+      summary: Dislike a post
+      tags:
+      - posts
+  /api/posts/{id}/like:
+    post:
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Invalid Auth Header
+        "404":
+          description: Post Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
+      summary: Like a post
+      tags:
+      - posts
+  /api/posts/{id}/likes:
+    get:
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+        "404":
+          description: Post Not Found
+        "500":
+          description: Internal Error
+      summary: Get likes for the post
+      tags:
+      - posts
+  /api/posts/{id}/tags:
     get:
       parameters:
       - description: Post ID
@@ -673,7 +639,33 @@ paths:
       summary: Get all tags for the post
       tags:
       - tags
-  /api/tags/post/{name}:
+  /api/posts/search/q/{query}:
+    get:
+      parameters:
+      - description: Query
+        in: path
+        name: query
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/posts.Post'
+            type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Post Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Error
+      summary: Search posts by title
+      tags:
+      - posts
+  /api/posts/tagPosts/t/{name}:
     get:
       parameters:
       - description: Tag Name
@@ -694,7 +686,7 @@ paths:
           description: Tag Not Found
         "500":
           description: Internal Error
-      summary: Get posts associated with the tag
+      summary: Get posts associated with the tagPosts
       tags:
       - tags
 swagger: "2.0"

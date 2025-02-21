@@ -6,15 +6,15 @@ import (
 	"blog/util"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
-	"strconv"
 )
 
-func updloadImage(w http.ResponseWriter, r *http.Request) {
+func upload(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -72,9 +72,8 @@ func updloadImage(w http.ResponseWriter, r *http.Request) {
 	}
 	writer.Close()
 
-	req, err := http.NewRequest(
-		"POST", config.Host+"/api/images/upload", &b,
-	)
+	url := fmt.Sprintf("%s/api/images/", config.Host)
+	req, err := http.NewRequest("POST", url, &b)
 	if err != nil {
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
 		log.Println("failed to create request:", err)
@@ -103,10 +102,8 @@ func updloadImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err := util.Request(
-		"GET", config.Host+"/api/images/get",
-		token, nil,
-	)
+	url = fmt.Sprintf("%s/api/images/", config.Host)
+	body, status, err := util.Request("GET", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -160,10 +157,8 @@ func gallery(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	body, status, err := util.Request(
-		"GET", config.Host+"/api/images/get",
-		token, nil,
-	)
+	url := fmt.Sprintf("%s/api/images/", config.Host)
+	body, status, err := util.Request("GET", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -227,10 +222,8 @@ func delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err := util.Request(
-		"DELETE", config.Host+"/api/images/delete/"+strconv.Itoa(imageId),
-		token, nil,
-	)
+	url := fmt.Sprintf("%s/api/images/%d", config.Host, imageId)
+	body, status, err := util.Request("DELETE", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
 		log.Println(err)
@@ -241,10 +234,8 @@ func delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status, err = util.Request(
-		"GET", config.Host+"/api/images/get",
-		token, nil,
-	)
+	url = fmt.Sprintf("%s/api/images/", config.Host)
+	body, status, err = util.Request("GET", url, token, nil)
 	if status == http.StatusInternalServerError {
 		http.Error(w, "Internal Error", status)
 		log.Println(err)
@@ -278,7 +269,7 @@ func delete(w http.ResponseWriter, r *http.Request) {
 
 func ServeMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/upload", updloadImage)
+	mux.HandleFunc("/upload", upload)
 	mux.HandleFunc("/gallery", gallery)
 	mux.HandleFunc("/delete/", delete)
 	return mux

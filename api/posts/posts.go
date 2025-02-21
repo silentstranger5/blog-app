@@ -2,6 +2,7 @@ package posts
 
 import (
 	"blog/config"
+	"blog/db/comments"
 	"blog/db/likes"
 	"blog/db/posts"
 	"blog/db/tags"
@@ -12,7 +13,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"strings"
+	"strconv"
 )
 
 // @Summary Add a new post
@@ -25,8 +26,8 @@ import (
 // @Failure 401 "Invalid Auth Header"
 // @Failure 405 "Method Not Allowed"
 // @Failure 500 "Internal Error"
-// @Router /api/posts/add [post]
-func AddPost(w http.ResponseWriter, r *http.Request) {
+// @Router /api/posts/ [post]
+func add(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -89,7 +90,8 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 				delete(tagMap, tag)
 			}
 		}
-		err = tags.AddTags(config.DB, config.Ctx, postId, tagList)
+		post.Tags = tagList
+		err = tags.AddTags(config.DB, config.Ctx, postId, post.Tags)
 		if err != nil {
 			http.Error(w, "Internal Error", http.StatusInternalServerError)
 			log.Println(err)
@@ -109,8 +111,8 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 "Posts Not Found"
 // @Failure 405 "Method Not Allowed"
 // @Failure 500 "Internal Error"
-// @Router /api/posts/get [get]
-func GetPosts(w http.ResponseWriter, r *http.Request) {
+// @Router /api/posts/ [get]
+func get(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -147,15 +149,20 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 "Not Found"
 // @Failure 405 "Method Not Allowed"
 // @Failure 500 "Internal Error"
-// @Router /api/posts/get/{id} [get]
-func GetPost(w http.ResponseWriter, r *http.Request) {
+// @Router /api/posts/{id} [get]
+func getId(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	postId := util.ParseUrlId(r.URL.Path)
-	if postId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+	postId, err := strconv.Atoi(pathVal)
+	if err != nil {
 		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
@@ -195,8 +202,8 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 "Post Not Found"
 // @Failure 405 "Method Not Allowed"
 // @Failure 500 "Internal Error"
-// @Router /api/posts/update/{id} [put]
-func UpdatePost(w http.ResponseWriter, r *http.Request) {
+// @Router /api/posts/{id} [put]
+func update(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -213,8 +220,13 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postId := util.ParseUrlId(r.URL.Path)
-	if postId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+	postId, err := strconv.Atoi(pathVal)
+	if err != nil {
 		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
@@ -273,6 +285,19 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		tagMap := make(map[tags.Tag]bool)
+		tagList := make([]tags.Tag, 0)
+		for _, tag := range post.Tags {
+			tagMap[tag] = true
+		}
+		for _, tag := range post.Tags {
+			_, ok := tagMap[tag]
+			if ok {
+				tagList = append(tagList, tag)
+				delete(tagMap, tag)
+			}
+		}
+		post.Tags = tagList
 		err = tags.UpdateTags(config.DB, config.Ctx, postId, post.Tags)
 		if err != nil {
 			http.Error(w, "Internal Error", http.StatusInternalServerError)
@@ -297,8 +322,8 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 "Post Not Found"
 // @Failure 405 "Method Not Allowed"
 // @Failure 500 "Internal Error"
-// @Router /api/posts/delete/{id} [delete]
-func DeletePost(w http.ResponseWriter, r *http.Request) {
+// @Router /api/posts/{id} [delete]
+func deleteId(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -315,8 +340,13 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postId := util.ParseUrlId(r.URL.Path)
-	if postId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+	postId, err := strconv.Atoi(pathVal)
+	if err != nil {
 		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
@@ -358,8 +388,8 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 "Post Not Found"
 // @Failure 405 "Method Not Allowed"
 // @Failure 500 "Internal Error"
-// @Router /api/posts/like/id [post]
-func LikePost(w http.ResponseWriter, r *http.Request) {
+// @Router /api/posts/{id}/like [post]
+func like(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -376,11 +406,17 @@ func LikePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postId := util.ParseUrlId(r.URL.Path)
-	if postId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
 		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
+	postId, err := strconv.Atoi(pathVal)
+	if err != nil {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+
 	_, err = posts.GetPost(config.DB, config.Ctx, postId)
 	if err != nil && err != sql.ErrNoRows {
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
@@ -413,8 +449,8 @@ func LikePost(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 "Post Not Found"
 // @Failure 405 "Method Not Allowed"
 // @Failure 500 "Internal Error"
-// @Router /api/posts/dislike/{id} [post]
-func DislikePost(w http.ResponseWriter, r *http.Request) {
+// @Router /api/posts/{id}/dislike [post]
+func dislike(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -431,11 +467,17 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postId := util.ParseUrlId(r.URL.Path)
-	if postId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
 		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
+	postId, err := strconv.Atoi(pathVal)
+	if err != nil {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+
 	_, err = posts.GetPost(config.DB, config.Ctx, postId)
 	if err != nil && err != sql.ErrNoRows {
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
@@ -466,19 +508,25 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 "Bad Request"
 // @Failure 404 "Post Not Found"
 // @Failure 500 "Internal Error"
-// @Router /api/posts/likes/{id} [get]
-func GetLikes(w http.ResponseWriter, r *http.Request) {
+// @Router /api/posts/{id}/likes [get]
+func postLikes(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	postId := util.ParseUrlId(r.URL.Path)
-	if postId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
 		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
-	_, err := posts.GetPost(config.DB, config.Ctx, postId)
+	postId, err := strconv.Atoi(pathVal)
+	if err != nil {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+
+	_, err = posts.GetPost(config.DB, config.Ctx, postId)
 	if err != nil && err != sql.ErrNoRows {
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
 		log.Println(err)
@@ -515,22 +563,22 @@ func GetLikes(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 "Post Not Found"
 // @Failure 405 "Method Not Allowed"
 // @Failure 500 "Internal Error"
-// @Router /api/posts/search/{query} [get]
-func SearchPost(w http.ResponseWriter, r *http.Request) {
+// @Router /api/posts/search/q/{query} [get]
+func search(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	parts := strings.Split(r.URL.Path, "/")
-	if !(len(parts) == 3 && parts[2] != "") {
+	var err error
+	query := r.PathValue("query")
+	if query == "" {
 		http.Error(w, "Invalid URL", http.StatusBadRequest)
 		return
 	}
-	query, err := url.QueryUnescape(parts[2])
+	query, err = url.QueryUnescape(query)
 	if err != nil {
-		http.Error(w, "Internal Error", http.StatusInternalServerError)
-		log.Println("failed to unescape string:", err)
+		http.Error(w, "Invalid URL", http.StatusBadRequest)
 		return
 	}
 
@@ -556,16 +604,161 @@ func SearchPost(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+// @Summary Get comments for the post
+// @Tags comments
+// @Produce json
+// @Param id path int true "Post ID"
+// @Success 200 {object} []comments.Comment
+// @Failure 400 "Bad Request"
+// @Failure 404 "Comments Not Found"
+// @Failure 405 "Method Not Allowed"
+// @Failure 500 "Internal Error"
+// @Router /api/posts/{id}/comments [get]
+func postComments(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+	postId, err := strconv.Atoi(pathVal)
+	if err != nil {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+
+	commentList, err := comments.GetComments(config.DB, config.Ctx, postId)
+	if err != nil {
+		http.Error(w, "Internal Error", http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	if commentList == nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	data, err := json.Marshal(&commentList)
+	if err != nil {
+		http.Error(w, "Internal Error", http.StatusInternalServerError)
+		log.Println("failed to marshal JSON:", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
+// @Summary Get all tags for the post
+// @Tags tags
+// @Produce json
+// @Param id path int true "Post ID"
+// @Success 200 {object} []tags.Tag
+// @Failure 400 "Bad Request"
+// @Failure 404 "Post Not Found"
+// @Failure 500 "Internal Error"
+// @Failure 405 "Method Not Allowed"
+// @Router /api/posts/{id}/tags [get]
+func postTags(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+	postId, err := strconv.Atoi(pathVal)
+	if err != nil {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+
+	tagList, err := tags.GetTags(config.DB, config.Ctx, postId)
+	if err != nil {
+		http.Error(w, "Internal Error", http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	if tagList == nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	data, err := json.Marshal(tagList)
+	if err != nil {
+		http.Error(w, "Internal Error", http.StatusInternalServerError)
+		log.Println("failed to marshal JSON:", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
+// @Summary Get posts associated with the tagPosts
+// @Tags tags
+// @Produce json
+// @Param name path string true "Tag Name"
+// @Success 200 {object} posts.Posts
+// @Failure 400 "Bad Request"
+// @Failure 404 "Tag Not Found"
+// @Failure 500 "Internal Error"
+// @Router /api/posts/tagPosts/t/{name} [get]
+func tagPosts(w http.ResponseWriter, r *http.Request) {
+	var err error
+	tagName := r.PathValue("name")
+	if tagName == "" {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+	tagName, err = url.QueryUnescape(tagName)
+	if err != nil {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+
+	postData, err := posts.FilterTag(config.DB, config.Ctx, tags.Tag{Name: tagName})
+	if err != nil {
+		http.Error(w, "Internal Error", http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	if postData == nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	data, err := json.Marshal(postData)
+	if err != nil {
+		http.Error(w, "Internal Error", http.StatusInternalServerError)
+		log.Println("failed to marshal JSON:", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
 func ServeMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/add", AddPost)
-	mux.HandleFunc("/get", GetPosts)
-	mux.HandleFunc("/get/", GetPost)
-	mux.HandleFunc("/delete/", DeletePost)
-	mux.HandleFunc("/update/", UpdatePost)
-	mux.HandleFunc("/likes/", GetLikes)
-	mux.HandleFunc("/like/", LikePost)
-	mux.HandleFunc("/dislike/", DislikePost)
-	mux.HandleFunc("/search/", SearchPost)
+	mux.HandleFunc("POST /", add)
+	mux.HandleFunc("GET /", get)
+	mux.HandleFunc("GET /{id}", getId)
+	mux.HandleFunc("PUT /{id}", update)
+	mux.HandleFunc("DELETE /{id}", deleteId)
+	mux.HandleFunc("POST /{id}/like", like)
+	mux.HandleFunc("POST /{id}/dislike", dislike)
+	mux.HandleFunc("GET /{id}/likes", postLikes)
+	mux.HandleFunc("GET /{id}/comments", postComments)
+	mux.HandleFunc("GET /{id}/tags", postTags)
+	mux.HandleFunc("GET /tags/t/{name}", tagPosts)
+	mux.HandleFunc("GET /search/q/{query}", search)
 	return mux
 }

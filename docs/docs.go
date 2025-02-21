@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/auth/Register": {
+        "/api/auth/register": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -23,7 +23,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Register a new user",
+                "summary": "register a new user",
                 "parameters": [
                     {
                         "description": "User",
@@ -54,7 +54,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/auth/Token": {
+        "/api/auth/token": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -65,7 +65,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Get auth Token for the user",
+                "summary": "Get auth token for the user",
                 "parameters": [
                     {
                         "description": "User",
@@ -102,107 +102,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/comments/add/{id}": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "comments"
-                ],
-                "summary": "Add a comment to the post",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Post ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Comment",
-                        "name": "comment",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/comments.Comment"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "401": {
-                        "description": "Invalid Auth Header"
-                    },
-                    "404": {
-                        "description": "Post Not Found"
-                    },
-                    "405": {
-                        "description": "Method Not Allowed"
-                    }
-                }
-            }
-        },
-        "/api/comments/delete/{id}": {
-            "delete": {
-                "tags": [
-                    "comments"
-                ],
-                "summary": "Delete the comment",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Comment ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "401": {
-                        "description": "Invalid Auth Token"
-                    },
-                    "403": {
-                        "description": "No Access To Comment"
-                    },
-                    "404": {
-                        "description": "Comment Not Found"
-                    },
-                    "405": {
-                        "description": "Method Not Allowed"
-                    },
-                    "500": {
-                        "description": "Internal Error"
-                    }
-                }
-            }
-        },
-        "/api/comments/get/{id}": {
+        "/api/comments/{id}": {
             "get": {
                 "produces": [
                     "application/json"
@@ -240,53 +140,8 @@ const docTemplate = `{
                         "description": "Internal Error"
                     }
                 }
-            }
-        },
-        "/api/comments/post/{id}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "comments"
-                ],
-                "summary": "Get comments for the post",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Post ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/comments.Comment"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Comments Not Found"
-                    },
-                    "405": {
-                        "description": "Method Not Allowed"
-                    },
-                    "500": {
-                        "description": "Internal Error"
-                    }
-                }
-            }
-        },
-        "/api/comments/update/{id}": {
-            "post": {
+            },
+            "put": {
                 "consumes": [
                     "application/json"
                 ],
@@ -339,25 +194,74 @@ const docTemplate = `{
                         "description": "Internal Error"
                     }
                 }
-            }
-        },
-        "/api/images/delete/{id}": {
-            "delete": {
-                "tags": [
-                    "images"
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
                 ],
-                "summary": "Delete Image",
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Add a comment to the post",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Image ID",
+                        "description": "Post ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Auth Header",
+                        "description": "Auth Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Comment",
+                        "name": "comment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/comments.Comment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Header"
+                    },
+                    "404": {
+                        "description": "Post Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Delete the comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Comment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Auth Token",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -374,10 +278,13 @@ const docTemplate = `{
                         "description": "Invalid Auth Token"
                     },
                     "403": {
-                        "description": "No Access To Image"
+                        "description": "No Access To Comment"
                     },
                     "404": {
-                        "description": "Image Not Found"
+                        "description": "Comment Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
                     },
                     "500": {
                         "description": "Internal Error"
@@ -385,7 +292,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/images/get": {
+        "/api/images/": {
             "get": {
                 "produces": [
                     "application/json"
@@ -414,43 +321,7 @@ const docTemplate = `{
                         "description": "Internal Error"
                     }
                 }
-            }
-        },
-        "/api/images/get/{id}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "images"
-                ],
-                "summary": "Get Image by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Image ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/images.Image"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "500": {
-                        "description": "Internal Error"
-                    }
-                }
-            }
-        },
-        "/api/images/upload": {
+            },
             "post": {
                 "consumes": [
                     "multipart/form-data"
@@ -494,7 +365,115 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/posts/add": {
+        "/api/images/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "images"
+                ],
+                "summary": "Get Image by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Image ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/images.Image"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "images"
+                ],
+                "summary": "Delete Image",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Image ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Auth Header",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Token"
+                    },
+                    "403": {
+                        "description": "No Access To Image"
+                    },
+                    "404": {
+                        "description": "Image Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Error"
+                    }
+                }
+            }
+        },
+        "/api/posts/": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Get post list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/posts.Post"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Posts Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
+                    }
+                }
+            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -540,106 +519,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/posts/delete/{id}": {
-            "delete": {
-                "tags": [
-                    "posts"
-                ],
-                "summary": "Delete a post",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Post ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "401": {
-                        "description": "Invalid Auth Token"
-                    },
-                    "403": {
-                        "description": "No Access To Post"
-                    },
-                    "404": {
-                        "description": "Post Not Found"
-                    },
-                    "405": {
-                        "description": "Method Not Allowed"
-                    },
-                    "500": {
-                        "description": "Internal Error"
-                    }
-                }
-            }
-        },
-        "/api/posts/dislike/{id}": {
-            "post": {
-                "tags": [
-                    "posts"
-                ],
-                "summary": "Dislike a post",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Post ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "401": {
-                        "description": "Invalid Auth Header"
-                    },
-                    "404": {
-                        "description": "Post Not Found"
-                    },
-                    "405": {
-                        "description": "Method Not Allowed"
-                    },
-                    "500": {
-                        "description": "Internal Error"
-                    }
-                }
-            }
-        },
-        "/api/posts/get": {
+        "/api/posts/search/q/{query}": {
             "get": {
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "posts"
                 ],
-                "summary": "Get post list",
+                "summary": "Search posts by title",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Query",
+                        "name": "query",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -654,7 +548,7 @@ const docTemplate = `{
                         "description": "Bad Request"
                     },
                     "404": {
-                        "description": "Posts Not Found"
+                        "description": "Post Not Found"
                     },
                     "405": {
                         "description": "Method Not Allowed"
@@ -665,7 +559,44 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/posts/get/{id}": {
+        "/api/posts/tagPosts/t/{name}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tags"
+                ],
+                "summary": "Get posts associated with the tagPosts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tag Name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/posts.Posts"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Tag Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Error"
+                    }
+                }
+            }
+        },
+        "/api/posts/{id}": {
             "get": {
                 "produces": [
                     "application/json"
@@ -706,130 +637,7 @@ const docTemplate = `{
                         "description": "Internal Error"
                     }
                 }
-            }
-        },
-        "/api/posts/like/id": {
-            "post": {
-                "tags": [
-                    "posts"
-                ],
-                "summary": "Like a post",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Post ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "401": {
-                        "description": "Invalid Auth Header"
-                    },
-                    "404": {
-                        "description": "Post Not Found"
-                    },
-                    "405": {
-                        "description": "Method Not Allowed"
-                    },
-                    "500": {
-                        "description": "Internal Error"
-                    }
-                }
-            }
-        },
-        "/api/posts/likes/{id}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "posts"
-                ],
-                "summary": "Get likes for the post",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Post ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Post Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Error"
-                    }
-                }
-            }
-        },
-        "/api/posts/search/{query}": {
-            "get": {
-                "tags": [
-                    "posts"
-                ],
-                "summary": "Search posts by title",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Query",
-                        "name": "query",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/posts.Post"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Post Not Found"
-                    },
-                    "405": {
-                        "description": "Method Not Allowed"
-                    },
-                    "500": {
-                        "description": "Internal Error"
-                    }
-                }
-            }
-        },
-        "/api/posts/update/{id}": {
+            },
             "put": {
                 "consumes": [
                     "application/json"
@@ -886,9 +694,222 @@ const docTemplate = `{
                         "description": "Internal Error"
                     }
                 }
+            },
+            "delete": {
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Delete a post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Auth Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Token"
+                    },
+                    "403": {
+                        "description": "No Access To Post"
+                    },
+                    "404": {
+                        "description": "Post Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
+                    }
+                }
             }
         },
-        "/api/tags/get/{id}": {
+        "/api/posts/{id}/comments": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Get comments for the post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/comments.Comment"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Comments Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
+                    }
+                }
+            }
+        },
+        "/api/posts/{id}/dislike": {
+            "post": {
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Dislike a post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Auth Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Header"
+                    },
+                    "404": {
+                        "description": "Post Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
+                    }
+                }
+            }
+        },
+        "/api/posts/{id}/like": {
+            "post": {
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Like a post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Auth Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Invalid Auth Header"
+                    },
+                    "404": {
+                        "description": "Post Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Error"
+                    }
+                }
+            }
+        },
+        "/api/posts/{id}/likes": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Get likes for the post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Post Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Error"
+                    }
+                }
+            }
+        },
+        "/api/posts/{id}/tags": {
             "get": {
                 "produces": [
                     "application/json"
@@ -924,43 +945,6 @@ const docTemplate = `{
                     },
                     "405": {
                         "description": "Method Not Allowed"
-                    },
-                    "500": {
-                        "description": "Internal Error"
-                    }
-                }
-            }
-        },
-        "/api/tags/post/{name}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tags"
-                ],
-                "summary": "Get posts associated with the tag",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Tag Name",
-                        "name": "name",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/posts.Posts"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Tag Not Found"
                     },
                     "500": {
                         "description": "Internal Error"

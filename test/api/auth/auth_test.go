@@ -49,13 +49,13 @@ func TestRegister(t *testing.T) {
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
-			req, err := http.NewRequest("POST", "/api/auth/register", bytes.NewBuffer(data))
+			req, err := http.NewRequest("POST", "/register", bytes.NewBuffer(data))
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(auth_api.Register)
-			handler.ServeHTTP(rr, req)
+			mux := auth_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			if status := rr.Code; status != test.status {
 				t.Fatalf("test failed: %v", status)
 			}
@@ -85,14 +85,14 @@ func TestToken(t *testing.T) {
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
-			req, err := http.NewRequest("POST", "/api/auth/token",
+			req, err := http.NewRequest("POST", "/token",
 				bytes.NewBuffer(data))
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(auth_api.Token)
-			handler.ServeHTTP(rr, req)
+			mux := auth_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)

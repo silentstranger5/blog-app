@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 // @Summary Upload an image
@@ -22,8 +23,8 @@ import (
 // @Failure 401 "Invalid Auth Token"
 // @Failure 405 "Method Not Allowed"
 // @Failure 500 "Internal Error"
-// @Router /api/images/upload [post]
-func uploadImage(w http.ResponseWriter, r *http.Request) {
+// @Router /api/images/ [post]
+func add(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -91,8 +92,8 @@ func uploadImage(w http.ResponseWriter, r *http.Request) {
 // @Failure 405 "Method Not Allowed"
 // @Failure 404 "Images Not Found"
 // @Failure 500 "Internal Error"
-// @Router /api/images/get [get]
-func getImages(w http.ResponseWriter, r *http.Request) {
+// @Router /api/images/ [get]
+func get(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -127,15 +128,20 @@ func getImages(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} Image
 // @Failure 400 "Bad Request"
 // @Failure 500 "Internal Error"
-// @Router /api/images/get/{id} [get]
-func getImage(w http.ResponseWriter, r *http.Request) {
+// @Router /api/images/{id} [get]
+func getId(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	imageId := util.ParseUrlId(r.URL.Path)
-	if imageId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+	imageId, err := strconv.Atoi(pathVal)
+	if err != nil {
 		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
@@ -172,8 +178,8 @@ func getImage(w http.ResponseWriter, r *http.Request) {
 // @Failure 403 "No Access To Image"
 // @Failure 404 "Image Not Found"
 // @Failure 500 "Internal Error"
-// @Router /api/images/delete/{id} [delete]
-func deleteImage(w http.ResponseWriter, r *http.Request) {
+// @Router /api/images/{id} [delete]
+func delete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -190,8 +196,13 @@ func deleteImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imageId := util.ParseUrlId(r.URL.Path)
-	if imageId == 0 {
+	pathVal := r.PathValue("id")
+	if pathVal == "" {
+		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		return
+	}
+	imageId, err := strconv.Atoi(pathVal)
+	if err != nil {
 		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
@@ -231,9 +242,9 @@ func deleteImage(w http.ResponseWriter, r *http.Request) {
 
 func ServeMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/upload", uploadImage)
-	mux.HandleFunc("/get", getImages)
-	mux.HandleFunc("/get/", getImage)
-	mux.HandleFunc("/delete/", deleteImage)
+	mux.HandleFunc("POST /", add)
+	mux.HandleFunc("GET /", get)
+	mux.HandleFunc("GET /{id}", getId)
+	mux.HandleFunc("DELETE /{id}", delete)
 	return mux
 }

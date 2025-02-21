@@ -2,7 +2,6 @@ package tags_test
 
 import (
 	posts_api "blog/api/posts"
-	tags_api "blog/api/tags"
 	"blog/config"
 	"blog/db/auth"
 	"blog/db/posts"
@@ -15,7 +14,6 @@ import (
 	"net/http/httptest"
 	"os"
 	"reflect"
-	"strconv"
 	"testing"
 )
 
@@ -83,17 +81,15 @@ func TestAddTags(t *testing.T) {
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
-			req, err := http.NewRequest(
-				"POST", "/add", bytes.NewBuffer(data),
-			)
+			req, err := http.NewRequest("POST", "/add", bytes.NewBuffer(data))
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			req.Header.Set("Authorization", "Bearer "+test.token)
 			req.Header.Set("Content-Type", "application/json")
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(posts_api.AddPost)
-			handler.ServeHTTP(rr, req)
+			mux := posts_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)
@@ -120,15 +116,14 @@ func TestGetTags(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			req, err := http.NewRequest(
-				"GET", "/get/"+strconv.Itoa(test.postid), nil,
-			)
+			url := fmt.Sprintf("/%d/tags", test.postid)
+			req, err := http.NewRequest("GET", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(tags_api.GetTags)
-			handler.ServeHTTP(rr, req)
+			mux := posts_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)
@@ -166,15 +161,14 @@ func TestGetPosts(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			req, err := http.NewRequest(
-				"GET", "/post/"+test.tag, nil,
-			)
+			url := fmt.Sprintf("/tags/t/%s", test.tag)
+			req, err := http.NewRequest("GET", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(tags_api.GetPosts)
-			handler.ServeHTTP(rr, req)
+			mux := posts_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", err)
@@ -196,7 +190,7 @@ func TestGetPosts(t *testing.T) {
 				postids = append(postids, post.Id)
 			}
 			if !reflect.DeepEqual(postids, test.postids) {
-				t.Fatalf("test failed: %v", err)
+				t.Fatalf("test failed: %v", postids)
 			}
 		})
 	}

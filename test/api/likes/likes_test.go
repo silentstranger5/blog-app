@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"strconv"
 	"testing"
 )
 
@@ -70,32 +69,29 @@ func TestLikePost(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			req, err := http.NewRequest(
-				"POST", "/like/"+strconv.Itoa(test.postid), nil,
-			)
+			url := fmt.Sprintf("/%d/like", test.postid)
+			req, err := http.NewRequest("POST", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			req.Header.Set("Authorization", "Bearer "+test.token)
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(posts_api.LikePost)
-			handler.ServeHTTP(rr, req)
+			mux := posts_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
-				t.Fatalf("test failed: %v", err)
+				t.Fatalf("test failed: %v", status)
 			}
 			if status != http.StatusOK {
 				return
 			}
-			req, err = http.NewRequest(
-				"GET", "/likes/"+strconv.Itoa(test.postid), nil,
-			)
+			url = fmt.Sprintf("/%d/likes", test.postid)
+			req, err = http.NewRequest("GET", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr = httptest.NewRecorder()
-			handler = http.HandlerFunc(posts_api.GetLikes)
-			handler.ServeHTTP(rr, req)
+			mux.ServeHTTP(rr, req)
 			status = rr.Code
 			if status != http.StatusOK {
 				t.Fatalf("test failed: %v", err)
@@ -134,16 +130,15 @@ func TestDislikePost(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			req, err := http.NewRequest(
-				"POST", "/dislike/"+strconv.Itoa(test.postid), nil,
-			)
+			url := fmt.Sprintf("/%d/dislike", test.postid)
+			req, err := http.NewRequest("POST", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			req.Header.Set("Authorization", "Bearer "+test.token)
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(posts_api.DislikePost)
-			handler.ServeHTTP(rr, req)
+			mux := posts_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", err)
@@ -151,15 +146,13 @@ func TestDislikePost(t *testing.T) {
 			if status != http.StatusOK {
 				return
 			}
-			req, err = http.NewRequest(
-				"GET", "/likes/"+strconv.Itoa(test.postid), nil,
-			)
+			url = fmt.Sprintf("/%d/likes", test.postid)
+			req, err = http.NewRequest("GET", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr = httptest.NewRecorder()
-			handler = http.HandlerFunc(posts_api.GetLikes)
-			handler.ServeHTTP(rr, req)
+			mux.ServeHTTP(rr, req)
 			status = rr.Code
 			if status != http.StatusOK {
 				t.Fatalf("test failed: %v", err)

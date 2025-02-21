@@ -13,7 +13,6 @@ import (
 	"net/http/httptest"
 	"os"
 	"reflect"
-	"strconv"
 	"testing"
 	"time"
 )
@@ -72,16 +71,15 @@ func TestAddPost(t *testing.T) {
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
-			req, err := http.NewRequest("POST", "/add",
-				bytes.NewBuffer(data))
+			req, err := http.NewRequest("POST", "/add", bytes.NewBuffer(data))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "Bearer "+test.token)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(posts_api.AddPost)
-			handler.ServeHTTP(rr, req)
+			mux := posts_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)
@@ -96,13 +94,13 @@ func TestGetPosts(t *testing.T) {
 		{Id: 2, AuthorId: 1, Title: "New Post", Author: "user", Text: "Hello, World!"},
 		{Id: 3, AuthorId: 2, Title: "Another Post", Author: "guest", Text: "Your text here!"},
 	}
-	req, err := http.NewRequest("GET", "/get", nil)
+	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
 		t.Fatalf("test failed: %v", err)
 	}
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(posts_api.GetPosts)
-	handler.ServeHTTP(rr, req)
+	mux := posts_api.ServeMux()
+	mux.ServeHTTP(rr, req)
 	status := rr.Code
 	if status != http.StatusOK {
 		t.Fatalf("test failed: %v", status)
@@ -140,14 +138,14 @@ func TestGetPost(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			req, err := http.NewRequest("GET",
-				"/get/"+strconv.Itoa(test.post.Id), nil)
+			url := fmt.Sprintf("/%d", test.post.Id)
+			req, err := http.NewRequest("GET", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(posts_api.GetPost)
-			handler.ServeHTTP(rr, req)
+			mux := posts_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)
@@ -235,17 +233,16 @@ func TestUpdatePost(t *testing.T) {
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
-			req, err := http.NewRequest(
-				"PUT", "/update/"+strconv.Itoa(test.post.Id),
-				bytes.NewBuffer(data))
+			url := fmt.Sprintf("/%d", test.post.Id)
+			req, err := http.NewRequest("PUT", url, bytes.NewBuffer(data))
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", "Bearer "+test.token)
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(posts_api.UpdatePost)
-			handler.ServeHTTP(rr, req)
+			mux := posts_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)
@@ -253,14 +250,13 @@ func TestUpdatePost(t *testing.T) {
 			if status != http.StatusOK {
 				return
 			}
-			req, err = http.NewRequest("GET",
-				"/get/"+strconv.Itoa(test.post.Id), nil)
+			url = fmt.Sprintf("/%d", test.post.Id)
+			req, err = http.NewRequest("GET", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr = httptest.NewRecorder()
-			handler = http.HandlerFunc(posts_api.GetPost)
-			handler.ServeHTTP(rr, req)
+			mux.ServeHTTP(rr, req)
 			status = rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)
@@ -300,15 +296,14 @@ func TestSearchPost(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			req, err := http.NewRequest(
-				"GET", "/search/"+test.query, nil,
-			)
+			url := fmt.Sprintf("/search/q/%s", test.query)
+			req, err := http.NewRequest("GET", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(posts_api.SearchPost)
-			handler.ServeHTTP(rr, req)
+			mux := posts_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)
@@ -351,16 +346,15 @@ func TestDeletePost(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			req, err := http.NewRequest(
-				"DELETE", "/delete/"+strconv.Itoa(test.postid), nil,
-			)
+			url := fmt.Sprintf("/%d", test.postid)
+			req, err := http.NewRequest("DELETE", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			req.Header.Set("Authorization", "Bearer "+test.token)
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(posts_api.DeletePost)
-			handler.ServeHTTP(rr, req)
+			mux := posts_api.ServeMux()
+			mux.ServeHTTP(rr, req)
 			status := rr.Code
 			if status != test.status {
 				t.Fatalf("test failed: %v", status)
@@ -368,14 +362,13 @@ func TestDeletePost(t *testing.T) {
 			if status != http.StatusOK {
 				return
 			}
-			req, err = http.NewRequest("GET",
-				"/get/"+strconv.Itoa(test.postid), nil)
+			url = fmt.Sprintf("/%d", test.postid)
+			req, err = http.NewRequest("GET", url, nil)
 			if err != nil {
 				t.Fatalf("test failed: %v", err)
 			}
 			rr = httptest.NewRecorder()
-			handler = http.HandlerFunc(posts_api.GetPost)
-			handler.ServeHTTP(rr, req)
+			mux.ServeHTTP(rr, req)
 			status = rr.Code
 			if status != http.StatusNotFound {
 				t.Fatalf("test failed: %v", status)
